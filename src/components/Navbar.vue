@@ -2,13 +2,20 @@
   <nav class="navbar">
     <router-link to="/"><strong>Inicio</strong></router-link>    
     <router-link to="/Egresos"><strong>Egresos</strong></router-link>    
-    <div class="dropdown" @mouseleave="isDropdownOpen = false">
-      <button @click="toggleDropdown"><strong>Artículos ▼</strong></button>
-      <div v-if="isDropdownOpen" class="dropdown-content">
-        <router-link to="/createarticulo" @click="closeDropdown">Crear Artículo</router-link>
-        <router-link to="/mantenimientoarticulo" @click="closeDropdown">Mantenimiento de Artículos</router-link>
-        <router-link to="/Grupos" @click="closeDropdown">Grupos</router-link>
-        <router-link to="/Familia" @click="closeDropdown">Familias</router-link>
+    <div class="dropdown" @mouseleave="isArticulosOpen = false">
+      <button @click="ToggleArticulos"><strong>Artículos ▼</strong></button>
+      <div v-if="isArticulosOpen" class="dropdown-content">
+        <router-link to="/createarticulo" @click="closeMenu">Crear Artículo</router-link>
+        <router-link to="/mantenimientoarticulo" @click="closeMenu">Mantenimiento de Artículos</router-link>
+        <router-link to="/Grupos" @click="closeMenu">Grupos</router-link>
+        <router-link to="/Familia" @click="closeMenu">Familias</router-link>
+      </div>
+    </div>
+    <div class="dropdown" @mouseleave="isDepositosOpen = false">
+    <button @click="ToggleDepositos"><strong>Depósitos ▼</strong></button>
+     <div v-if="isDepositosOpen" class="dropdown-content">
+        <router-link to="/createDepositos" @click="closeMenu">Crear Depósito</router-link>
+        <router-link to="/createarticulo" @click="closeMenu">Mantenimiento de Depósitos</router-link>
       </div>
     </div>
   </nav>
@@ -17,14 +24,22 @@
 <script setup>
 import { ref } from 'vue'
 
-const isDropdownOpen = ref(false)
+const isArticulosOpen = ref(false)
+const isDepositosOpen = ref(false)
 
-function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value
+function ToggleArticulos() {
+  isArticulosOpen.value = !isArticulosOpen.value
+  isDepositosOpen.value = false
 }
 
-function closeDropdown() {
-  isDropdownOpen.value = false
+function ToggleDepositos() {
+  isDepositosOpen.value = !isDepositosOpen.value
+  isArticulosOpen.value = false
+}
+
+function closeMenu() {
+  isArticulosOpen.value = false
+  isDepositosOpen.value = false
 }
 </script>
 
