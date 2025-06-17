@@ -18,29 +18,46 @@
         <router-link to="/createarticulo" @click="closeMenu">Mantenimiento de Depósitos</router-link>
       </div>
     </div>
+    <div class="dropdown" @mouseleave="isProveedoresOpen = false">
+    <button @click="ToggleProveedores"><strong>Proveedores ▼</strong></button>
+     <div v-if="isProveedoresOpen" class="dropdown-content">
+        <router-link to="/CreateProveedor" @click="closeMenu">Crear Proveedor</router-link>
+        <router-link to="/" @click="closeMenu">Mantenimiento de Proveedor</router-link>
+      </div>
+    </div>
   </nav>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 
-const isArticulosOpen = ref(false)
-const isDepositosOpen = ref(false)
+const isArticulosOpen = ref(false);
+const isDepositosOpen = ref(false);
+const isProveedoresOpen = ref(false);
 
 function ToggleArticulos() {
-  isArticulosOpen.value = !isArticulosOpen.value
-  isDepositosOpen.value = false
+  isArticulosOpen.value = !isArticulosOpen.value;
+  isDepositosOpen.value = false;
+  isProveedoresOpen.value = false;
 }
 
 function ToggleDepositos() {
-  isDepositosOpen.value = !isDepositosOpen.value
-  isArticulosOpen.value = false
+  isDepositosOpen.value = !isDepositosOpen.value;
+  isArticulosOpen.value = false;
+  isProveedoresOpen.value = false
+}
+function ToggleProveedores() {
+  isProveedoresOpen.value = !isProveedoresOpen.value;
+  isDepositosOpen.value = false;
+  isArticulosOpen.value = false;
 }
 
 function closeMenu() {
-  isArticulosOpen.value = false
-  isDepositosOpen.value = false
+  isArticulosOpen.value = false;
+  isDepositosOpen.value = false;
+  isProveedoresOpen.value = false
 }
+
 </script>
 
 <style scoped>
