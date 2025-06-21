@@ -2,15 +2,29 @@
     <div class="info">
 
         <form @submit.prevent="enviarFormulario" class="formventa">
-            <label for="tipo" class="textoventa">Tipo de egreso:</label>
-            <select id="tipo" v-model="tipoSeleccionado">        
-                <option value="venta">Venta</option>
-                <option value="devolucion">Devolución</option>
-                <option value="baja">Baja</option>
-            </select>        
+            <label for="tipo">Tipo de Movimiento:</label>
+              <select v-model="TipoMovimiento" id="tipo" required>                
+                <option value="ING">Ingreso</option>
+                <option value="EGR">Egreso</option>
+                <option value="AJU">Ajuste</option>
+                <option value="DEV">Devolución</option>
+                <option value="REM">Remito</option>
+                <option value="VEN">Venta</option>
+              </select>     
         </form>
+        
             <div class="numeracion">
                 <p class="textoventa"><strong>Comprobante:</strong> {{ 1 }}-{{ 1 }}</p>        
+            </div>
+
+            <div>              
+              <label for="depositos"><strong>Deposito Origen:</strong></label>
+              <select v-model="IddepositosSeleccionado" required>
+              <option disabled value="">Seleccione un deposito</option>
+              <option v-for="depositos in depositos" :key="depositos.Iddepositos" :value="depositos.Iddepositos">
+              {{ depositos.Nombre }}
+          </option>
+        </select>
             </div>
     </div>
 
@@ -36,7 +50,7 @@
         </tr>
         </thead>
         <tbody>
-            <tr v-for="(articulo, index) in articulos" :key="index">
+          <tr v-for="(articulo, index) in articulos" :key="index">
           <td>{{ articulo.cantidad }}</td>
           <td>{{ articulo.codigo }}</td>
           <td>{{ articulo.descripcion }}</td>                  
@@ -49,18 +63,31 @@
 export default {
   data() {
     return {
-        tipoSeleccionado:'venta',
-      Articulo: {
+        TipoMovimiento:'Egreso',
+        Comprobante:`1`,
+        Articulo: {
         cantidad: 1,
         codigo: '',
         descripcion: '',
         precio: 0,
         costo: 0
       },
-      articulos: []
+      articulos: [],
+      depositos: [],
+      IddepositosSeleccionado:''
     };
   },
   methods: {
+    async obtenerDepositos()
+    {
+      try {
+        const res = await fetch('http://localhost:3000/depositos');
+        this.depositos = await res.json();
+      } catch (err) {
+        console.error('Error al obtener depositos:', err);
+      }
+    },
+/*
     agregarArticulo() {
       if (this.Articulo.codigo && this.Articulo.descripcion) {
         this.articulos.push({ ...this.Articulo });        
@@ -74,9 +101,14 @@ export default {
       } else {
         alert('Me falta laburar');
       }
-    }
-  }
+    }*/
+  },
+  mounted() {
+  this.obtenerDepositos();
+}
 };
+
+
 </script>
 
 <style scoped>

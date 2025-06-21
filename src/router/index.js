@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Egresos from '@/views/Egresos.vue'
+import Egresos from '@/views/Movimientos.vue'
 import CreateArticulo from '@/views/CreateArticulo.vue'
 import Grupo from '@/views/Grupos.vue'
 import Familia from '@/views/Familia.vue'
