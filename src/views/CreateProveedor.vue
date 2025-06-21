@@ -3,7 +3,7 @@
   <div class="fondo">
     <form @submit.prevent="crearProveedor" class="formProveedor">
       <label for="RazonSocial"><Strong>Razon Social</Strong></label>
-      <input type="text" name="RazonSocial" v-model="Descripcion" id="Descripcion" required />
+      <input type="text" name="RazonSocial" v-model="RazonSocial" id="RazonSocial" required />
 
       <label for="Codigo"><strong>Código</strong></label>
       <input type="text" name="Codigo" v-model="Codigo" id="Codigo" />
@@ -26,10 +26,6 @@
 
       <label for="correo"><strong>Correo</strong></label>
       <input type="text" name="correo" v-model="correo" id="correo" step="any" />
-
-      <label for="descripcion"><strong>Descripcion</strong></label>
-      <input type="text" name="descripcion" v-model="descripcion" id="descripcion" step="any" />
-
       <button type="submit">Crear</button>
     </form>
   </div>
@@ -39,56 +35,44 @@
 export default {
   data() {
     return {
-      Descripcion: '',
-      CondicionIVA: 'gramos',
-      Direccion: '',
+      RazonSocial: '',
       Codigo: '',
-      telefono: '',
+      CondicionIVA: 'Responsable Inscripto',
+      Direccion: '',      
+      Telefono: '',
       CBU: '',
-      IdGrupoSeleccionado: '',
-      grupos: [] 
+      Correo:''
     };
   },
   methods: {
     async crearProveedor()
     {
       try {
-      const res= await fetch('http://localhost:3000/articulos',
+      const res= await fetch('http://localhost:3000/proveedores',
       {
         method:'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify
         ({
-          descripcion:this.Descripcion,
-          unidad_medida:this.CondicionIVA,
+          RazonSocial:this.RazonSocial,
+          CondicionIVA:this.CondicionIVA,
           Direccion:this.Direccion,
-          codigo:this.Codigo,
-          telefono:this.telefono,
-          CBU:this.CBU,
-          IdGrupoArticulo: this.IdGrupoSeleccionado 
+          Codigo:this.Codigo,
+          Telefono:this.telefono,
+          CBU:this.CBU,  
+          Correo:this.correo        
         })
       })
       if (!res.ok) throw new Error('Error al insertar');
-        alert('Articulo Creado exitosamente');
+        alert('Proveedor Creado exitosamente');
       } catch (err) {
-        alert('Error al insertar articulo');
+        alert('Error al insertar Proveedor');
         console.error(err);
       }
     
     },
-      async obtenerGrupos() {
-      try {
-        const res = await fetch('http://localhost:3000/grupos');
-        this.grupos = await res.json();
-      } catch (err) {
-        console.error('Error al obtener grupos:', err);
-      }
-    },  
-      
-  },
-  mounted() {
-      this.obtenerGrupos();
-    }  
+     
+  }  
 };
 </script>
 

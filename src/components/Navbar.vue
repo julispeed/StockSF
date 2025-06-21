@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <router-link to="/"><strong>Inicio</strong></router-link>    
-    <router-link to="/Egresos"><strong>Egresos</strong></router-link>    
+    <router-link to="/Egresos"><strong>Movimientos</strong></router-link>    
     <div class="dropdown" @mouseleave="isArticulosOpen = false">
       <button @click="ToggleArticulos"><strong>Artículos ▼</strong></button>
       <div v-if="isArticulosOpen" class="dropdown-content">
