@@ -1,5 +1,7 @@
 <template>
+  <div class="main-container">
   <h1>ARTICULOS</h1>
+  
   <div class="fondo">
     <form @submit.prevent="crearArticulo" class="formArticulo">
       <label for="DescripcionArticulo"><Strong>Descripción</Strong></label>
@@ -33,6 +35,7 @@
       </select>
       <button type="submit">Crear</button>
     </form>
+  </div>
   </div>
 </template>
 
@@ -94,6 +97,19 @@ export default {
 </script>
 
 <style scoped>
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+.main-container {
+  min-height: calc(100vh - 60px); /* Deja espacio para el footer */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-bottom: 60px; /* Espacio para que el botón no tape el footer */
+}
 h1
 {
     text-align: center;
