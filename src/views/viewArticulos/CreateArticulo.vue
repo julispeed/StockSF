@@ -1,8 +1,11 @@
 <template>
   <div class="main-container">
   <h1>ARTICULOS</h1>
-  
+  <div class="error" >
+        <p v-if="errorArticulo" class="error-mensaje"><strong>{{ errorArticulo }}</strong></p>
+      </div>
   <div class="fondo">
+      
     <form @submit.prevent="crearArticulo" class="formArticulo">
       <label for="DescripcionArticulo"><Strong>Descripción</Strong></label>
       <input type="text" name="DescripcionArticulo" v-model="Descripcion" id="Descripcion" required />
@@ -34,8 +37,9 @@
         </option>
       </select>
       <button type="submit">Crear</button>
-    </form>
+    </form>   
   </div>
+
   </div>
 </template>
 
@@ -50,12 +54,14 @@ export default {
       Precio: '',
       Costo: '',
       IdGrupoSeleccionado: '',
-      grupos: [] 
+      grupos: [] ,
+      errorArticulo: '',
     };
   },
   methods: {
     async crearArticulo()
     {
+      this.errorArticulo = '';
       try {
       const res= await fetch('http://localhost:3000/articulos',
       {
@@ -72,12 +78,18 @@ export default {
           IdGrupoArticulo: this.IdGrupoSeleccionado 
         })
       })
-      if (!res.ok) throw new Error('Error al insertar');
-        alert('Articulo Creado exitosamente');
+      if (!res.ok) {      
+      const errorData = await res.json().catch(() => null);
+      const mensaje = errorData?.message;      
+      throw new Error(mensaje);      
+      }
+    alert("Articulo creado exitosamente");
       } catch (err) {
         alert('Error al insertar articulo');
+        this.errorArticulo = err.message;
         console.error(err);
       }
+      
     
     },
       async obtenerGrupos() {
@@ -170,5 +182,17 @@ button {
   color: rgb(0, 0, 0); 
   font-family: 'Courier New', Courier, monospace;
   font-size: 20px;
+}
+
+.error-mensaje
+{
+  text-align:  center;
+  color: #2c3e50;
+  font-family: 'Courier New', Courier, monospace;  
+  font-size: 20px;
+}
+.error
+{
+  background-color: #42b983;
 }
 </style>

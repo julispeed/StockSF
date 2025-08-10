@@ -1,19 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Egresos from '@/views/Movimientos.vue'
-import CreateArticulo from '@/views/CreateArticulo.vue'
-import Grupo from '@/views/Grupos.vue'
-import Familia from '@/views/Familia.vue'
-import CreateDeposito from '@/views/CreateDepositos.vue'
-import CreateProveedor from '@/views/CreateProveedor.vue'
+import Articulos from '@/views/Articulos.vue'
+import Movimientos from '@/views/Movimientos.vue'
+import CreateArticulo from '@/views/viewArticulos/CreateArticulo.vue'
+import Grupo from '@/views/viewArticulos/Grupos.vue'
+import Familia from '@/views/viewArticulos/Familia.vue'
+import CreateDeposito from '@/views/viewDepositos/Depositos.vue'
+import CreateProveedor from '@/views/viewProveedores/Proveedor.vue'
+import MantenimientoArticulos from '@/views/viewArticulos/MantenimientoArticulos.vue'
 
 
 const routes = [
-  { path: '/egresos', name: 'Egreso', component: Egresos },
+  { path: '/articulos', name: 'Articulos', component: Articulos },
+  { path: '/movimientos', name: 'Egreso', component: Movimientos },
   { path: '/createArticulo', name: 'CreateArticulo', component: CreateArticulo },
   { path: '/Grupos', name: 'Grupo', component: Grupo },
   { path: '/Familia', name: 'Familia', component: Familia },
-  { path: '/CreateDepositos', name: 'CreateDeposito', component: CreateDeposito },
-  { path: '/CreateProveedor', name: 'CreateProveedor', component: CreateProveedor}
+  { path: '/Depositos', name: 'CreateDeposito', component: CreateDeposito },
+  { path: '/Proveedor', name: 'CreateProveedor', component: CreateProveedor},
+  { path: '/MantenimientoArticulos', name: 'MantenimientoArticulos', component: MantenimientoArticulos}
 ]
 
 

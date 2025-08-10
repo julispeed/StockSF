@@ -1,3 +1,4 @@
+
 <template>
    <div class="main-container"> 
     <div class="info">
@@ -56,9 +57,10 @@
     <input 
       type="number" 
       placeholder="Cantidad" 
-      v-model.number="cantidadTemporal"
-      @keyup.enter="confirmarCantidad"
+      v-model.number="cantidadTemporal"      
+      @keyup.enter="confirmarCantidad"      
       min="1"
+      ref="inputCantidad"
     />
     <button @click="confirmarCantidad">Aceptar</button>
   </div>
@@ -68,26 +70,45 @@
     <table class="tabla">
         <thead>
            <tr>
-              <th>Acción</th>
+              <th>Eliminar</th>
+              <th>Editar</th>
               <th>Cantidad</th>
               <th>Codigo Articulo</th>
               <th>Descripcion</th>
               <th>Codigo Barras</th>
               <th>Precio</th>
               <th>Costo</th>
+              <th>Total Costo</th>
+              <th>Total Precio</th>
             </tr>          
         </thead>
         <tbody>
           <tr v-for="(articulo, index) in articulos" :key="index">
-            <td>✔</td>
+            <td><button @click="eliminarArticulo(index)" class="eliminar">❌</button></td>
+            <td><button @click="editarArticulo(index)">✏️</button></td>
             <td>{{ articulo.cantidad }}</td>            
             <td>{{ articulo.codigo }}</td>
             <td>{{ articulo.descripcion }}</td>
             <td>{{ articulo.CodigoBarra }}</td>
             <td>{{ articulo.precio }}</td>
             <td>{{ articulo.costo }}</td>
+            <td>{{ (articulo.costo * articulo.cantidad).toFixed(2) }}</td>
+            <td>{{ (articulo.precio * articulo.cantidad).toFixed(2) }}</td> 
           </tr>
         </tbody>
+        <tfoot>
+          <tr>
+            <td><strong>Total:</strong></td>
+            <td>—</td>
+            <td>-</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td><strong>{{ totalCosto }}</strong></td>
+            <td><strong>{{ totalPrecio }}</strong></td>
+          </tr>
+</tfoot>
     </table>
     
       <div class="button-container">
@@ -98,6 +119,7 @@
 </template>
 
 <script>
+import { nextTick } from 'vue';
 export default {
   data() {
     return {
@@ -119,8 +141,8 @@ export default {
       sugerencias: [],
       mostrarSugerencias: false,
       mostrarCantidad: false,
-      cantidadTemporal: '',
-      ProximoNumero:'',
+      cantidadTemporal: 1,
+      ProximoNumero:'',      
     };
   },
 
@@ -134,6 +156,27 @@ export default {
 },
 
   methods: {
+    async eliminarArticulo(index)
+    {
+      this.articulos.splice(index, 1);
+    },
+    async editarArticulo(index)
+    {
+      const articulo = this.articulos[index];
+      this.Articulo = { ...articulo }; // Copiamos los datos para edición
+      this.cantidadTemporal = articulo.cantidad;
+      this.articulos.splice(index, 1); // Eliminamos el artículo temporalmente
+
+      this.mostrarCantidad = true; // Volvemos a mostrar el popup de cantidad
+      this.$nextTick(() => {
+      const input = this.$refs.inputCantidad;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+  });
+
+    },
     async obtenerDepositos() {
       try {
         const res = await fetch('http://localhost:3000/depositos');
@@ -144,31 +187,35 @@ export default {
     },
 
     async buscarArticulo() {
-      console.log("Buscar Articulo");
-      const termino = this.busqueda.trim();
+  const termino = this.busqueda.trim();
 
-      if (!termino) {
-        this.sugerencias = [];
-        this.mostrarSugerencias=false;
-        return;
-      }
-      try {
-        const res = await fetch(`http://localhost:3000/articulos/buscar?termino=${encodeURIComponent(termino)}`);
-        const data = await res.json();
-          console.log(data);
-        if (data.length === 0) {
-          this.sugerencias = [];
-          this.mostrarSugerencias=false;
-          return;
-        }
+  if (!termino) {
+    this.sugerencias = [];
+    this.mostrarSugerencias = false;
+    return;
+  }
 
-        this.sugerencias = data;
-        this.mostrarSugerencias=true;
+  try {
+    const res = await fetch(`http://localhost:3000/articulos/buscar?termino=${encodeURIComponent(termino)}`);
+    const data = await res.json();
+    
+    if (data.length === 0) {
+      this.sugerencias = [];
+      this.mostrarSugerencias = false;
+      return;
+    }
 
-        } catch (err) {
-          console.error("Error en la búsqueda:", err);
-        }   
-    },
+    if (data.length === 1) {
+      this.seleccionarArticulo(data[0]);
+    } else {      
+      this.sugerencias = data;
+      this.mostrarSugerencias = true;
+    }
+
+  } catch (err) {
+    console.error("Error en la búsqueda:", err);
+  }
+},
 
     async guardarMovimiento() {
       console.log(this.TipoMovimiento);
@@ -206,7 +253,7 @@ export default {
         alert("Hubo un error al guardar el movimiento");
       }
     },
-    seleccionarArticulo(articulo) {
+  seleccionarArticulo(articulo) {
   this.Articulo = {
     IdArticulo: articulo.IdArticulo,
     codigo: articulo.Codigo,
@@ -215,12 +262,21 @@ export default {
     precio: articulo.Precio,
     costo: articulo.Costo        
   };
-
+  console.log(articulo.precio);
+  console.log(articulo.costo);
   this.mostrarSugerencias = false;
   this.mostrarCantidad = true;
-  this.cantidadTemporal = ''; // limpiar input
+  this.cantidadTemporal = 1; 
   this.busqueda = '';
   this.sugerencias = [];
+
+  this.$nextTick(() => {
+    const input = this.$refs.inputCantidad;
+    if (input) {
+      input.focus();
+      input.select(); 
+    }
+  });
 },
 
 
@@ -258,17 +314,27 @@ confirmarCantidad() {
     precio: 0,
     costo: 0
   };
-  this.cantidadTemporal = '';
+  this.cantidadTemporal = 1;
   this.mostrarCantidad = false;
-}
-
   },
-  
+
+
+},
+    computed: {
+  totalPrecio() {
+    return this.articulos.reduce((acc, a) => acc + (a.precio * a.cantidad), 0).toFixed(2);
+  },
+  totalCosto() {
+    return this.articulos.reduce((acc, a) => acc + (a.costo * a.cantidad), 0).toFixed(2);
+  }
+},
   mounted() {
     this.obtenerDepositos();
-    this.obtenerProximo();
+    this.obtenerProximo();   
   }
 };
+
+
 </script>
 
 
@@ -396,6 +462,10 @@ button
   border: none;
   border-radius: 10px;
   cursor: pointer;    
+}
+.eliminar
+{  
+  background-color: rgb(255, 255, 255);
 }
 
 
