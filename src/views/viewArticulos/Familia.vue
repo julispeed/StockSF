@@ -1,6 +1,9 @@
 <template>
   <div class="main-container">
     <h1>FAMILIAS</h1>
+    <div class="error" >
+        <p v-if="errorFamilia" class="error-mensaje"><strong>{{ errorFamilia }}</strong></p>
+      </div> 
   <div class="fondo">    
     <form @submit.prevent="crearFamilia" class="formFamilia">
         <label for="Nombre"><Strong>Nombre</Strong></label>
@@ -18,12 +21,14 @@ export default {
   data() {
     return {
       Nombre: '',
-      Descripcion:''      
+      Descripcion:'' ,
+      errorFamilia:''     
     };
   },
   methods: {
     async crearFamilia()
     {
+      this.errorFamilia='';
       try {
       const res= await fetch('http://localhost:3000/familias',
       {
@@ -35,10 +40,15 @@ export default {
           Descripcion:this.Descripcion
         })
       })
-      if (!res.ok) throw new Error('Error al insertar');
+      if (!res.ok){
+        const errorData= await res.json().catch(()=> null);
+        const mensaje= errorData?.message;
+        throw new Error (mensaje);
+      }
         alert('Familia Creado exitosamente');
       } catch (err) {
         alert('Error al insertar Familia');
+        this.errorFamilia=err.message;
         console.error(err);
       }
     
@@ -120,5 +130,17 @@ button {
   color: rgb(0, 0, 0); 
   font-family: 'Courier New', Courier, monospace;
   font-size: 20px;
+}
+
+.error-mensaje
+{
+  text-align:  center;
+  color: #2c3e50;
+  font-family: 'Courier New', Courier, monospace;  
+  font-size: 20px;
+}
+.error
+{
+  background-color: #42b983;
 }
 </style>

@@ -1,6 +1,9 @@
 <template>
   <div class="main-container">
     <h1>GRUPOS</h1>
+      <div class="error" >
+        <p v-if="errorGrupo" class="error-mensaje"><strong>{{ errorGrupo }}</strong></p>
+      </div>      
   <div class="fondo">    
     <form @submit.prevent="crearGrupo" class="formGrupo">
         <label for="Nombre"><Strong>Nombre</Strong></label>
@@ -27,11 +30,13 @@ export default {
       Nombre: '',
       Descripcion: '',
       IdFamiliaSeleccionada: '',
-      familias: [] 
+      familias: [] ,
+      errorGrupo:'',
     };
   },
   methods: {
     async crearGrupo() {
+      this.errorGrupo='';
       try {
         const res = await fetch('http://localhost:3000/grupos', {
           method: 'POST',
@@ -43,10 +48,15 @@ export default {
           })
         });
 
-        if (!res.ok) throw new Error('Error al insertar');
-        alert('Grupo creado exitosamente');
+        if (!res.ok) {
+          const errorData = await res.json().catch(()=> null);
+          const mensaje = errorData?.message;
+          throw new Error (mensaje);
+        }
+        alert("Grupo creado exitosamente")
       } catch (err) {
         alert('Error al insertar grupo');
+        this.errorGrupo=err.message;
         console.error(err);
       }
     },
@@ -139,5 +149,16 @@ button {
   color: rgb(0, 0, 0); 
   font-family: 'Courier New', Courier, monospace;
   font-size: 20px;
+}
+.error-mensaje
+{
+  text-align:  center;
+  color: #2c3e50;
+  font-family: 'Courier New', Courier, monospace;  
+  font-size: 20px;
+}
+.error
+{
+  background-color: #42b983;
 }
 </style>
