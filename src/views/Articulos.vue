@@ -1,59 +1,91 @@
 <template>
-  <v-card>
-    <v-tabs v-model="tab" bg-color="primary">
+  <v-card >
+    <v-tabs v-model="tab" bg-color="primary" >
       <v-tab value="one">Crear Artículo</v-tab>
       <v-tab value="two">Crear Grupo</v-tab>
-      <v-tab value="three">Crear Familia</v-tab>
-      <v-tab value="four">Mantenimiento de Articulos</v-tab>
+      <v-tab value="three">Crear Familia</v-tab>      
     </v-tabs>
 
     <v-card-text>
-      <v-tabs-window v-model="tab">        
+      <v-tabs-window v-model="tab">  
+        
         <v-tabs-window-item value="one">
-          <div class="main-container">
-            <h1>ARTÍCULOS</h1>
-            <div class="error" v-if="errorArticulo">
-              <p class="error-mensaje"><strong>{{ errorArticulo }}</strong></p>
-          </div>
-          <div class="fondo">
-              <form @submit.prevent="crearArticulo" class="formulario">
-                <label><strong>Descripción</strong></label>
-                <input type="text" v-model="DescripcionArticulo" required />
+  <v-card>
+    <v-toolbar color="primary" dark flat>
+      <v-toolbar-title>Gestión de Artículos</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Buscar"
+        single-line
+        hide-details
+      ></v-text-field>
+      <v-btn color="secondary"  @click="editarArticulo(item)">Nuevo Artículo</v-btn>
+    </v-toolbar>
 
-                <label><strong>Unidad de medida</strong></label>
-                <select v-model="UnidadMedida">
-                  <option>gramos</option>
-                  <option>litros</option>
-                  <option>unidad</option>
-                </select>
+    <!-- Tabla de artículos -->
+    <v-data-table
+      :headers="headers"
+      :items="articulos"
+      :search="search"
+      class="elevation-1"
+    >
+      <template v-slot:item.precio="{ item }">
+        {{ formatCurrency(item.Precio) }}
+      </template>
+      <template v-slot:item.costo="{ item }">
+        {{ formatCurrency(item.Costo) }}
+      </template>
+      <template v-slot:item.acciones="{ item }">
+        <v-btn icon small color="blue" @click="editarArticulo(item)">
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn icon small color="red" @click="eliminarArticulo(item)">
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
 
-                <label><strong>Código de barra</strong></label>
-                <input type="text" v-model="CodigoBarra" />
-
-                <label><strong>Código</strong></label>
-                <input type="text" v-model="CodigoArticulo" />
-
-                <label><strong>Precio</strong></label>
-                <input type="number" v-model="Precio" step="any" />
-
-                <label><strong>Costo</strong></label>
-                <input type="number" v-model="Costo" step="any" />
-
-                <label><strong>Grupo</strong></label>
-                <select v-model="IdGrupoSeleccionado" required>
-                  <option disabled value="">Seleccione un grupo</option>
-                  <option v-for="grupo in grupos" :key="grupo.IdGrupoArticulo" :value="grupo.IdGrupoArticulo">
-                    {{ grupo.Nombre }}
-                  </option>
-                </select>
-
-                <button type="submit">Crear</button>
-              </form>
-            </div>
-          </div>
-        </v-tabs-window-item>
-
-        <!-- TAB GRUPOS -->
+    <!-- Diálogo de crear/editar -->
+    <v-dialog v-model="dialog" max-width="600px">
+      <v-card>
+        <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Artículo</v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-text-field label="Descripción" v-model="articuloEditando.Descripcion" required></v-text-field>
+            <v-select
+              label="Unidad de Medida"
+              :items="['gramos', 'litros', 'unidad']"
+              v-model="articuloEditando.Unidad_medida"
+              required
+            ></v-select>
+            <v-text-field label="Código de Barra" v-model="articuloEditando.Codigo_barra"></v-text-field>
+            <v-text-field label="Código" v-model="articuloEditando.Codigo"></v-text-field>
+            <v-text-field label="Precio" type="number" v-model="articuloEditando.Precio"></v-text-field>
+            <v-text-field label="Costo" type="number" v-model="articuloEditando.Costo"></v-text-field>
+            <v-select
+              label="Grupo"
+              :items="grupos"
+              item-text="Nombre"
+              item-value="IdGrupoArticulo"
+              v-model="articuloEditando.IdGrupoArticulos"
+              required
+            ></v-select>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text @click="dialog = false">Cancelar</v-btn>
+          <v-btn color="green" text @click="Ejecutar()">
+            {{ editando ? 'Actualizar' : 'Crear' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-card>
+  
+</v-tabs-window-item>
+                      <!-- TAB GRUPOS -->
         <v-tabs-window-item value="two">
           <div class="main-container">
             <h1>GRUPOS</h1>
@@ -103,76 +135,8 @@
           </div>
         </v-tabs-window-item>
         <!-- TAB MANTENIMIENTO DE ARTICULOS -->
-<v-tabs-window-item value="four">
-  <v-card flat>
-    <v-toolbar color="primary" dark flat>
-      <v-toolbar-title class="text-h5">
-        MANTENIMIENTO DE ARTÍCULOS
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Buscar"
-        single-line
-        hide-details
-        class="search-field"
-      ></v-text-field>
-    </v-toolbar>
+         
 
-    <v-data-table
-      :headers="headers"
-      :items="articulos"
-      :items-per-page="10"
-      :search="search"            
-      class="elevation-1"
-      :footer-props="{
-        'items-per-page-options': [10, 20, 50],
-        'items-per-page-text': 'Artículos por página:'
-      }"
-    >
-      <template v-slot:item.precio="{ item }">
-        {{ formatCurrency(item.precio) }}
-      </template>
-      
-      <template v-slot:item.costo="{ item }">
-        {{ formatCurrency(item.costo) }}
-      </template>
-
-      <template v-slot:item.acciones="{ item }">
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn 
-              icon 
-              color="blue" 
-              v-bind="attrs"
-              v-on="on"
-              @click="editarArticulo(item)"
-            >
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-          </template>
-          <span>Editar artículo</span>
-        </v-tooltip>
-
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn 
-              icon 
-              color="red" 
-              v-bind="attrs"
-              v-on="on"
-              @click="eliminarArticulo(item)"
-            >
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <span>Eliminar artículo</span>
-        </v-tooltip>
-      </template>
-    </v-data-table>
-  </v-card>
-</v-tabs-window-item>
       </v-tabs-window>
     </v-card-text>
   </v-card>
@@ -182,17 +146,7 @@
 export default {
   data: () => ({
     tab: "one",
-    
-    // Artículo
-      DescripcionArticulo: '',
-      UnidadMedida: 'gramos',
-      CodigoBarra: '',
-      CodigoArticulo: '',
-      Precio: '',
-      Costo: '',
-      IdGrupoSeleccionado: '',
-      grupos: [] ,
-      errorArticulo: '',
+    editando:true,
     // Grupo
     NombreGrupo: "",
     DescripcionGrupo: "",
@@ -217,41 +171,51 @@ export default {
   ],
     articulos: [], 
     dialog: false,
-    articuloEditando: {}
+    articuloEditando: {
+    IdArticulo: null,
+    Descripcion: '',
+    Unidad_medida: '',
+    Codigo_barra: '',
+    Codigo: '',
+    Precio: 0,
+    Costo: 0,
+    IdGrupoArticulos: ''
+  }
   }),
   methods: {    
     async crearArticulo()
     {
       this.errorArticulo = '';
       try {
-      const res= await fetch('http://localhost:3000/articulos/crear',
-      {
+        console.log(this.articuloEditando)
+        const res= await fetch('http://localhost:3000/articulos/crear',
+        {
+        
         method:'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify
-        ({
-          descripcion:this.DescripcionArticulo,
-          unidad_medida:this.UnidadMedida,
-          codigoBarra:this.codigoBarra,
-          codigo:this.CodigoArticulo,
-          precio:this.Precio,
-          costo:this.Costo,
-          IdGrupoArticulo: this.IdGrupoSeleccionado 
+        body: JSON.stringify({
+          Descripcion: this.articuloEditando.Descripcion,
+          Unidad_medida: this.articuloEditando.Unidad_medida,
+          Codigo_barra: this.articuloEditando.Codigo_barra,
+          Codigo: this.articuloEditando.Codigo,
+          Precio: this.articuloEditando.Precio, 
+          Costo: this.articuloEditando.Costo,
+          IdGrupoArticulos: this.articuloEditando.IdGrupoArticulos
+          })
         })
-      })
-      if (!res.ok) {      
-      const errorData = await res.json().catch(() => null);
-      const mensaje = errorData?.message;      
-      throw new Error(mensaje);      
-      }
-    alert("Articulo creado exitosamente");
+        if (!res.ok) {      
+          const errorData = await res.json().catch(() => null);
+          const mensaje = errorData?.message;      
+          throw new Error(mensaje);      
+        }
+        alert("Articulo creado exitosamente");
+        this.dialog=false;
+        this.obtenerArticulos();
       } catch (err) {
         alert('Error al insertar articulo');
         this.errorArticulo = err.message;
         console.error(err);
-      }
-      
-    
+      }          
     },
     async obtenerGrupos() {
       try {
@@ -282,12 +246,13 @@ export default {
         throw new Error (mensaje);
       }
         alert('Familia Creado exitosamente');
+        this.dialog = false;
       } catch (err) {
         alert('Error al insertar Familia');
         this.errorFamilia=err.message;
         console.error(err);
       }
-    
+      
     },
      async crearGrupo() {
       this.errorGrupo='';
@@ -323,8 +288,9 @@ export default {
         console.error('Error al obtener familias:', err);
       }
     },
-async obtenerArticulos() {
+  async obtenerArticulos() {
   try {
+    this.articulos=[];
     const response = await fetch('http://localhost:3000/articulos/listar');
     
     if (!response.ok) {
@@ -334,8 +300,8 @@ async obtenerArticulos() {
     const articulosData = await response.json();        
     this.articulos = articulosData.map(articulo => ({
       ...articulo,
-      precio: articulo.precio ? parseFloat(articulo.precio) : 0,
-      costo: articulo.costo ? parseFloat(articulo.costo) : 0
+      precio: articulo.precio ? parseFloat(articulo.Precio) : 0,
+      costo: articulo.costo ? parseFloat(articulo.Costo) : 0
     }));
     
   } catch(err) {
@@ -343,15 +309,86 @@ async obtenerArticulos() {
     this.articulos = [];     
     this.errorArticulo = 'No se pudieron cargar los artículos';
   }
+    },
+async eliminarArticulo(item) {  
+  if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
+
+  try {
+    const res = await fetch(`http://localhost:3000/articulos/eliminar/${item.IdArticulo}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) throw new Error('Error al eliminar el artículo');
+
+    const data = await res.json();
+    alert(data.message || "Artículo eliminado");
+    this.obtenerArticulos();
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo eliminar el artículo');
+  }
 },
-    async eliminarArticulo()
-    {
-
+    editarArticulo(item) {  
+      if (!item)
+      {        
+        this.editando=false;
+            this.articuloEditando= {
+            Descripcion: '',
+            Unidad_medida: '' ,
+            Codigo_barra: '',
+            Codigo: '',
+            Precio: 0,
+            Costo: 0,
+            IdGrupoArticulos: ''
+          }
+        this.dialog = true;
+      }
+      else{        
+        this.editando=true;
+        this.articuloEditando = { ...item };
+        this.dialog = true;
+      }
     },
-    async editarArticulo()
-    {
+async Ejecutar()
+{
+  if (this.editando)
+  {        
+        this.guardarEdicion();
+  }
+  else 
+  {    
+        this.crearArticulo();
+  }
+},
+    async guardarEdicion() {
+      try {        
+          if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
+            const res = await fetch(`http://localhost:3000/articulos/actualizar/${this.articuloEditando.IdArticulo}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              Descripcion: this.articuloEditando.Descripcion,
+              Unidad_medida: this.articuloEditando.Unidad_medida,
+              Codigo_barra: this.articuloEditando.Codigo_barra,
+              Codigo: this.articuloEditando.Codigo,
+              Precio: this.articuloEditando.Precio, 
+              Costo: this.articuloEditando.Costo,
+              IdGrupoArticulos: this.articuloEditando.IdGrupoArticulos
+          })
+            });  
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null); 
+          throw new Error(errorData?.message || 'Error al actualizar el artículo');
+          }
 
-    },
+          alert('Artículo actualizado con éxito');
+          this.dialog = false;
+          this.obtenerArticulos();           
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo actualizar el artículo: ' + err.message);
+  }
+},
 formatCurrency(value) {
   // Verificar si el valor es numérico o convertible a número
   const numberValue = parseFloat(value);
@@ -366,13 +403,15 @@ formatCurrency(value) {
 }
     
   },  
-      mounted() {
+    mounted() 
+    {
       this.obtenerGrupos();
-      this.obtenerFamilias();      
+      this.obtenerFamilias();
+      this.obtenerArticulos();
     },
   watch: {
     tab(newVal) {
-    if (newVal === 'four') { // Cuando se active la pestaña de mantenimiento
+    if (newVal === 'four') { 
       this.obtenerArticulos();
     }
     },
@@ -457,4 +496,5 @@ button {
   font-family: 'Courier New', Courier, monospace;
   font-size: 20px;
 }
+
 </style>
