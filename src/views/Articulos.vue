@@ -1,6 +1,6 @@
 <template>
   <v-card >
-    <v-tabs v-model="tab" bg-color="primary" >
+    <v-tabs v-model="tab" bg-color="light-blue-darken-4" >
       <v-tab value="one">Crear Artículo</v-tab>
       <v-tab value="two">Crear Grupo</v-tab>
       <v-tab value="three">Crear Familia</v-tab>      
@@ -10,168 +10,218 @@
       <v-tabs-window v-model="tab">  
         
         <v-tabs-window-item value="one">
-  <v-card>
-    <v-toolbar color="primary" dark flat>
-      <v-toolbar-title>Gestión de Artículos</v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Buscar"
-        single-line
-        hide-details
-      ></v-text-field>
-      <v-btn color="secondary"  @click="editarArticulo(item)">Nuevo Artículo</v-btn>
-    </v-toolbar>
+          <v-card>
+            <v-toolbar color="light-blue-darken-4" dark flat>
+              <v-toolbar-title>Gestión de Artículos</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-btn color="secondary"  @click="editarArticulo(item)">Nuevo Artículo</v-btn>
+            </v-toolbar>
 
     <!-- Tabla de artículos -->
-    <v-data-table
-      :headers="headers"
-      :items="articulos"
-      :search="search"
-      class="elevation-1"
-    >
-      <template v-slot:item.precio="{ item }">
-        {{ formatCurrency(item.Precio) }}
-      </template>
-      <template v-slot:item.costo="{ item }">
-        {{ formatCurrency(item.Costo) }}
-      </template>
-      <template v-slot:item.acciones="{ item }">
-        <v-btn icon small color="blue" @click="editarArticulo(item)">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn icon small color="red" @click="eliminarArticulo(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
-      </template>
-    </v-data-table>
+            <v-data-table
+              :headers="headersArticulos"
+              :items="articulos"
+              :search="search"
+              class="elevation-1"
+            >
+              <template v-slot:item.precio="{ item }">
+                {{ formatCurrency(item.Precio) }}
+              </template>
+              <template v-slot:item.costo="{ item }">
+                {{ formatCurrency(item.Costo) }}
+              </template>
+              <template v-slot:item.acciones="{ item }">
+                <v-btn icon small color="blue" @click="editarArticulo(item)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon small color="red" @click="eliminarArticulo(item)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
 
     <!-- Diálogo de crear/editar -->
-    <v-dialog v-model="dialog" max-width="600px">
-      <v-card>
-        <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Artículo</v-card-title>
-        <v-card-text>
-          <v-form>
-            <v-text-field label="Descripción" v-model="articuloEditando.Descripcion" required></v-text-field>
-            <v-select
-              label="Unidad de Medida"
-              :items="['gramos', 'litros', 'unidad']"
-              v-model="articuloEditando.Unidad_medida"
-              required
-            ></v-select>
-            <v-text-field label="Código de Barra" v-model="articuloEditando.Codigo_barra"></v-text-field>
-            <v-text-field label="Código" v-model="articuloEditando.Codigo"></v-text-field>
-            <v-text-field label="Precio" type="number" v-model="articuloEditando.Precio"></v-text-field>
-            <v-text-field label="Costo" type="number" v-model="articuloEditando.Costo"></v-text-field>
-            <v-select
-              label="Grupo"
-              :items="grupos"
-              item-text="Nombre"
-              item-value="IdGrupoArticulo"
-              v-model="articuloEditando.IdGrupoArticulos"
-              required
-            ></v-select>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn text @click="dialog = false">Cancelar</v-btn>
-          <v-btn color="green" text @click="Ejecutar()">
-            {{ editando ? 'Actualizar' : 'Crear' }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-card>
-  
-</v-tabs-window-item>
-                      <!-- TAB GRUPOS -->
-        <v-tabs-window-item value="two">
-          <div class="main-container">
-            <h1>GRUPOS</h1>
-            <div class="error" v-if="errorGrupo">
-              <p class="error-mensaje"><strong>{{ errorGrupo }}</strong></p>
-            </div>
-            <div class="fondo">
-              <form @submit.prevent="crearGrupo" class="formulario">
-                <label><strong>Nombre</strong></label>
-                <input type="text" v-model="NombreGrupo" required />
-
-                <label><strong>Descripción</strong></label>
-                <input type="text" v-model="DescripcionGrupo" required />
-
-                <label><strong>Familia</strong></label>
-                <select v-model="IdFamiliaSeleccionada" required>
-                  <option disabled value="">Seleccione una familia</option>
-                  <option v-for="familia in familias" :key="familia.IdFamilia" :value="familia.IdFamilia">
-                    {{ familia.Nombre }}
-                  </option>
-                </select>
-
-                <button type="submit">Crear</button>
-              </form>
-            </div>
-          </div>
+            <v-dialog v-model="dialogAR" max-width="600px">
+              <v-card>
+                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Artículo</v-card-title>
+                <v-card-text>
+                  <v-form>
+                    <v-text-field label="Descripción" v-model="articuloEditando.Descripcion" :rules="[v => !!v || 'La descripcion es obligatorio']" :error-messages="descripcionError" required></v-text-field>
+                    <v-select
+                      label="Unidad de Medida"
+                      :items="['gramos', 'litros', 'unidad']"
+                      v-model="articuloEditando.Unidad_medida"                      
+                      required
+                    ></v-select>
+                    <v-text-field label="Código de Barra" v-model="articuloEditando.Codigo_barra"></v-text-field>
+                    <v-text-field label="Código" v-model="articuloEditando.Codigo" maxlength="5" counter="5" :rules="[v => !!v || 'El código es obligatorio']" :error-messages="codigoError" ></v-text-field>
+                    <v-text-field label="Precio" type="number" v-model="articuloEditando.Precio" min="1" step="0.01" ></v-text-field>
+                    <v-text-field label="Costo" type="number" v-model="articuloEditando.Costo"></v-text-field>
+                    <v-select
+                      v-model="articuloEditando.IdGrupoArticulos"
+                      :items="grupos"
+                      item-text="Nombre"
+                      item-value="IdGrupoArticulo"
+                      label="Grupo"
+                      outlined
+                      dense
+                    />
+                  </v-form>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text @click="dialogAR = false">Cancelar</v-btn>
+                  <v-btn color="green" text @click="EjecutarA()">
+                    {{ editando ? 'Actualizar' : 'Crear' }}
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+        </v-card>
         </v-tabs-window-item>
+        <v-tabs-window-item value="two">
+          <v-card>
+            <v-toolbar color="light-blue-darken-4" dark flat>
+              <v-toolbar-title>Gestión de Grupos</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-btn color="secondary"  @click="editarGrupo(item)">Nuevo Grupos</v-btn>
+            </v-toolbar>
+          </v-card> 
 
+            <v-data-table
+              :headers="headersGrupos"
+              :items="grupos"
+              :search="search"
+              class="elevation-1"
+            >                          
+              <template v-slot:item.acciones="{ item }">
+                <v-btn icon small color="blue" @click="editarGrupo(item)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon small color="red" @click="eliminarGrupo(item)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+            <!--Dialogo grupo-->
+            <v-dialog v-model="dialogGR" max-width="600px">
+              <v-card>
+                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Grupo</v-card-title>
+                <v-card-text>
+                  <v-form>
+                    <v-text-field label="Nombre" v-model="gruposEditando.Nombre" required></v-text-field>                                        
+                    <v-text-field label="Descripción" v-model="gruposEditando.Descripcion" required></v-text-field>                                                            
+                    <v-select
+                      label="Familia"
+                      :items="familias"
+                      item-text="Nombre"
+                      item-value="IdFamilia"
+                      v-model="gruposEditando.IdFamilia"
+                      required
+                    ></v-select>
+                  </v-form>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text @click="dialogGR = false">Cancelar</v-btn>
+                  <v-btn color="green" text @click="EjecutarG()">
+                    {{ editando ? 'Actualizar' : 'Crear' }}
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          
+        </v-tabs-window-item>
         <!-- TAB FAMILIAS -->
         <v-tabs-window-item value="three">
-          <div class="main-container">
-            <h1>FAMILIAS</h1>
-            <div class="error" v-if="errorFamilia">
-              <p class="error-mensaje"><strong>{{ errorFamilia }}</strong></p>
-            </div>
-            <div class="fondo">
-              <form @submit.prevent="crearFamilia" class="formulario">
-                <label><strong>Nombre</strong></label>
-                <input type="text" v-model="NombreFamilia" required />
+          <v-card>
+            <v-toolbar color="light-blue-darken-4" dark flat>
+              <v-toolbar-title>Gestión de Familias</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Buscar"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-btn color="secondary"  @click="editarFamilia(item)">Nueva Familia</v-btn>
+            </v-toolbar>
+          </v-card> 
 
-                <label><strong>Descripción</strong></label>
-                <input type="text" v-model="DescripcionFamilia" required />
-
-                <button type="submit">Crear</button>
-              </form>
-            </div>
-          </div>
+            <v-data-table
+              :headers="headersFamilia"
+              :items="familias"
+              :search="search"
+              class="elevation-1"
+            >                          
+              <template v-slot:item.acciones="{ item }">
+                <v-btn icon small color="blue" @click="editarFamilia(item)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon small color="red" @click="eliminarFamilia(item)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+            <!--Dialogo grupo-->
+            <v-dialog v-model="dialogF" max-width="600px">
+              <v-card>
+                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Familia</v-card-title>
+                <v-card-text>
+                  <v-form>
+                    <v-text-field label="Nombre" v-model="familiaseditando.Nombre" required></v-text-field>                                        
+                    <v-text-field label="Descripción" v-model="familiaseditando.Descripcion" required></v-text-field>                                                            
+                  </v-form>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text @click="dialogF = false">Cancelar</v-btn>
+                  <v-btn color="green" text @click="EjecutarF()">
+                    {{ editando ? 'Actualizar' : 'Crear' }}
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          
         </v-tabs-window-item>
-        <!-- TAB MANTENIMIENTO DE ARTICULOS -->
-         
-
       </v-tabs-window>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
+import { apiRequest, apiCreate, apiUpdate, apiDelete } from '@/../utils/api'
 export default {
   data: () => ({
     tab: "one",
     editando:true,
-    // Grupo
-    NombreGrupo: "",
-    DescripcionGrupo: "",
-    IdFamiliaSeleccionada: "",
-    familias: [],
-    errorGrupo: "",
-    // Familia
-       NombreFamilia: '',
-      Descripcion:'' ,
-      errorFamilia:'',
-      //MANTENIMIENTOS
-  search: '',
-  headers: [
-    { text: 'Código', value: 'Codigo', width: '120px' , class: 'header-text' },
-    { text: 'Descripción', value: 'Descripcion',width: '120px' },
-    { text: 'Unidad de medida', value: 'Unidad_medida', width: '100px' },
-    { text: 'Codigo de Barra', value: 'Codigo_barra', width: '100px' },
-    { text: 'Precio', value: 'Precio', width: '120px', align: 'right' },
-    { text: 'Costo', value: 'Costo', width: '120px', align: 'right' },
-    { text: 'Grupo de Articulos', value: 'IdGrupoArticulos', width: '120px', align: 'right' },
-    { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
-  ],
-    articulos: [], 
-    dialog: false,
-    articuloEditando: {
+    search: '',
+  
+  
+    headersArticulos: [
+      { text: 'Código', value: 'Codigo', width: '120px' , class: 'header-text' },
+      { text: 'Descripción', value: 'Descripcion',width: '120px' },
+      { text: 'Unidad de medida', value: 'Unidad_medida', width: '100px' },
+      { text: 'Codigo de Barra', value: 'Codigo_barra', width: '100px' },
+      { text: 'Precio', value: 'Precio', width: '120px', align: 'right' },
+      { text: 'Costo', value: 'Costo', width: '120px', align: 'right' },
+      { text: 'Grupo de Articulos', value: 'IdGrupoArticulo', width: '120px', align: 'right' },
+      { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+    ],
+  articulos: [],
+  articuloEditando: {
     IdArticulo: null,
     Descripcion: '',
     Unidad_medida: '',
@@ -180,155 +230,157 @@ export default {
     Precio: 0,
     Costo: 0,
     IdGrupoArticulos: ''
-  }
+  },
+  dialogAR: false,
+
+
+  headersGrupos: [
+  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { text: 'Descripcion', value: 'Descripcion',width: '120px' },
+  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  ], 
+  grupos:[],
+  gruposEditando : 
+  {
+    IdGrupoArticulo:null,
+    Nombre:'',
+    Descripcion:'',
+    IdFamilia:''
+  },
+  dialogGR: false,            
+
+   headersFamilia: [
+  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { text: 'Descripcion', value: 'Descripcion',width: '120px' } ,
+  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  ],
+  familias:[],
+  familiaseditando :
+  {
+    IdFamilia:null,
+    Nombre:'',
+    Descripcion:''
+  },
+  dialogF:false,
   }),
+
   methods: {    
     async crearArticulo()
-    {
-      this.errorArticulo = '';
-      try {
-        console.log(this.articuloEditando)
-        const res= await fetch('http://localhost:3000/articulos/crear',
-        {
+    {      
+     try {
+    await apiCreate('http://localhost:3000/articulos/crear', this.articuloEditando);
         
-        method:'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          Descripcion: this.articuloEditando.Descripcion,
-          Unidad_medida: this.articuloEditando.Unidad_medida,
-          Codigo_barra: this.articuloEditando.Codigo_barra,
-          Codigo: this.articuloEditando.Codigo,
-          Precio: this.articuloEditando.Precio, 
-          Costo: this.articuloEditando.Costo,
-          IdGrupoArticulos: this.articuloEditando.IdGrupoArticulos
-          })
-        })
-        if (!res.ok) {      
-          const errorData = await res.json().catch(() => null);
-          const mensaje = errorData?.message;      
-          throw new Error(mensaje);      
-        }
-        alert("Articulo creado exitosamente");
-        this.dialog=false;
-        this.obtenerArticulos();
-      } catch (err) {
-        alert('Error al insertar articulo');
-        this.errorArticulo = err.message;
-        console.error(err);
-      }          
+    alert('Artículo creado con éxito');
+
+    this.dialogAR = false;
+    this.obtenerArticulos();
+  } catch (err) {    
+    alert('Error al crear artículo: ' + (err.message || ''));
+    console.error(err);
+  }
+
     },
-    async obtenerGrupos() {
-      try {
-        const res = await fetch('http://localhost:3000/grupos');
-        this.grupos = await res.json();
-      } catch (err) {
-        console.error('Error al obtener grupos:', err);
-      }
-    },  
-      
+    async crearGrupo() {      
+          try {
+    await apiCreate('http://localhost:3000/grupos/crear', this.gruposEditando);
+        
+    alert('grupo creado con éxito');
+
+    this.dialogGR = false;
+    this.obtenerGrupos();
+  } catch (err) {    
+    alert('Error al crear grupo: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
     async crearFamilia()
     {
-      this.errorFamilia='';
-      try {
-      const res= await fetch('http://localhost:3000/familias',
-      {
-        method:'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify
-        ({
-          Nombre:this.NombreFamilia,
-          Descripcion:this.Descripcion
-        })
-      })
-      if (!res.ok){
-        const errorData= await res.json().catch(()=> null);
-        const mensaje= errorData?.message;
-        throw new Error (mensaje);
-      }
-        alert('Familia Creado exitosamente');
-        this.dialog = false;
-      } catch (err) {
-        alert('Error al insertar Familia');
-        this.errorFamilia=err.message;
-        console.error(err);
-      }
-      
-    },
-     async crearGrupo() {
-      this.errorGrupo='';
-      try {
-        const res = await fetch('http://localhost:3000/grupos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            Nombre: this.NombreGrupo,
-            Descripcion: this.DescripcionGrupo,
-            IdFamilia: this.IdFamiliaSeleccionada  
-          })
-        });
+           try {
+            await apiCreate('http://localhost:3000/familias/crear', this.familiaseditando);
+        
+    alert('Familia creada con éxito');
 
-        if (!res.ok) {
-          const errorData = await res.json().catch(()=> null);
-          const mensaje = errorData?.message;
-          throw new Error (mensaje);
-        }
-        alert("Grupo creado exitosamente")
-      } catch (err) {
-        alert('Error al insertar grupo');
-        this.errorGrupo=err.message;
-        console.error(err);
-      }
+    this.dialogF = false;
+    this.obtenerFamilias();
+  } catch (err) {    
+    alert('Error al crear familia: ' + (err.message || ''));
+    console.error(err);
+  }  
+    },
+    //get
+
+    async obtenerArticulos() { 
+      this.articulos = await apiRequest('http://localhost:3000/articulos/listar') //('http://localhost:3000/articulos/listar');
     },
 
+    async obtenerGrupos() { 
+      this.grupos = await apiRequest('http://localhost:3000/grupos');
+    },
     async obtenerFamilias() {
-      try {
-        const res = await fetch('http://localhost:3000/familias');
-        this.familias = await res.json();
-      } catch (err) {
-        console.error('Error al obtener familias:', err);
-      }
-    },
-  async obtenerArticulos() {
-  try {
-    this.articulos=[];
-    const response = await fetch('http://localhost:3000/articulos/listar');
-    
-    if (!response.ok) {
-      throw new Error('Error al obtener los artículos');
-    }
-    
-    const articulosData = await response.json();        
-    this.articulos = articulosData.map(articulo => ({
-      ...articulo,
-      precio: articulo.precio ? parseFloat(articulo.Precio) : 0,
-      costo: articulo.costo ? parseFloat(articulo.Costo) : 0
-    }));
-    
-  } catch(err) {
-    console.error('Error al obtener artículos:', err);
-    this.articulos = [];     
-    this.errorArticulo = 'No se pudieron cargar los artículos';
-  }
-    },
-async eliminarArticulo(item) {  
-  if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
+     this.familias = await apiRequest('http://localhost:3000/familias');
+    },   
+    //delete
+    async eliminarArticulo(item) {  
+      if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
 
   try {
-    const res = await fetch(`http://localhost:3000/articulos/eliminar/${item.IdArticulo}`, {
-      method: 'DELETE',
-    });
+    const url = `http://localhost:3000/articulos/eliminar/${item.IdArticulo}`;
+    await apiDelete(url);
 
-    if (!res.ok) throw new Error('Error al eliminar el artículo');
-
-    const data = await res.json();
-    alert(data.message || "Artículo eliminado");
+    alert('Artículo eliminado con éxito');
     this.obtenerArticulos();
   } catch (err) {
+    alert('No se pudo eliminar el artículo: ' + (err.message || ''));
     console.error(err);
-    alert('No se pudo eliminar el artículo');
   }
-},
-    editarArticulo(item) {  
+    },
+    async eliminarGrupo(item)
+    {
+        if (!confirm('¿Seguro que quieres eliminar este grupo?')) return;
+  try {
+    const url = `http://localhost:3000/grupos/eliminar/${item.IdGrupoArticulo}`;
+    await apiDelete(url);
+
+    alert('Grupo eliminado con éxito');
+    this.obtenerGrupos(); 
+  } catch (err) {
+    alert('No se pudo eliminar el grupo: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
+        async eliminarArticulo(item) {  
+      if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
+      try {
+        const res = await fetch(`http://localhost:3000/articulos/eliminar/${item.IdArticulo}`, {
+        method: 'DELETE',
+        });
+
+        if (!res.ok) throw new Error('Error al eliminar el artículo');
+
+        const data = await res.json();
+        alert(data.message || "Artículo eliminado");
+        this.obtenerArticulos();
+      } catch (err) {
+          console.error(err);
+          alert('No se pudo eliminar el artículo');
+      }
+    },
+    async eliminarFamilia(item)
+    {
+       if (!confirm('¿Seguro que quieres eliminar esta familia?')) return;
+  try {
+    const url = `http://localhost:3000/familias/eliminar/${item.IdFamilia}`;
+    await apiDelete(url);
+
+    alert('Familia eliminado con éxito');
+    this.obtenerFamilias(); 
+  } catch (err) {
+    alert('No se pudo eliminar la Familia: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
+    //put
+    editarArticulo(item) {        
       if (!item)
       {        
         this.editando=false;
@@ -339,75 +391,159 @@ async eliminarArticulo(item) {
             Codigo: '',
             Precio: 0,
             Costo: 0,
-            IdGrupoArticulos: ''
+            IdGrupoArticulo: ''
           }
-        this.dialog = true;
+        this.dialogAR = true;
       }
       else{        
         this.editando=true;
         this.articuloEditando = { ...item };
-        this.dialog = true;
+        this.dialogAR = true;
       }
     },
-async Ejecutar()
-{
-  if (this.editando)
-  {        
-        this.guardarEdicion();
-  }
-  else 
-  {    
-        this.crearArticulo();
-  }
-},
-    async guardarEdicion() {
-      try {        
-          if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
-            const res = await fetch(`http://localhost:3000/articulos/actualizar/${this.articuloEditando.IdArticulo}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              Descripcion: this.articuloEditando.Descripcion,
-              Unidad_medida: this.articuloEditando.Unidad_medida,
-              Codigo_barra: this.articuloEditando.Codigo_barra,
-              Codigo: this.articuloEditando.Codigo,
-              Precio: this.articuloEditando.Precio, 
-              Costo: this.articuloEditando.Costo,
-              IdGrupoArticulos: this.articuloEditando.IdGrupoArticulos
-          })
-            });  
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => null); 
-          throw new Error(errorData?.message || 'Error al actualizar el artículo');
-          }
-
-          alert('Artículo actualizado con éxito');
-          this.dialog = false;
-          this.obtenerArticulos();           
-  } catch (err) {
-    console.error(err);
-    alert('No se pudo actualizar el artículo: ' + err.message);
-  }
-},
-formatCurrency(value) {
-  // Verificar si el valor es numérico o convertible a número
-  const numberValue = parseFloat(value);
-  
-  // Si no es un número válido o es NaN, devolver cadena vacía o símbolo de moneda sin valor
-  if (isNaN(numberValue)) {
-    return '$ -'; // O puedes devolver 'N/A' o similar
-  }
-  
-  // Formatear el número válido
-  return '$' + numberValue.toFixed(2);
-}
+    async guardarEdicionA() {
+     try {
+    const url = `http://localhost:3000/articulos/actualizar/${this.articuloEditando.IdArticulo}`;
     
-  },  
-    mounted() 
+    await apiUpdate(url, {
+      Descripcion: this.articuloEditando.Descripcion,
+      Unidad_medida: this.articuloEditando.Unidad_medida,
+      Codigo_barra: this.articuloEditando.Codigo_barra,
+      Codigo: this.articuloEditando.Codigo,
+      Precio: this.articuloEditando.Precio,
+      Costo: this.articuloEditando.Costo,
+      IdGrupoArticulos: this.articuloEditando.IdGrupoArticulos
+    });
+
+    alert('Artículo actualizado con éxito');
+    this.dialogAR = false; // cerrar el diálogo
+    this.obtenerArticulos(); // refrescar tabla
+  } catch (err) {
+    alert('Error al actualizar el artículo: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
+
+    editarGrupo(item) {
+      console.log(item);
+      if (!item)
+      {        
+        this.editando=false;
+            this.gruposEditando= {
+            Nombre:'',
+            Descripcion: '',                                                            
+            IdFamilia: ''
+          }
+        this.dialogGR = true;
+      }
+      else{        
+        this.editando=true;
+        this.gruposEditando = { ...item };
+        this.dialogGR = true;
+      }
+    },
+    async guardarEdicionG() {
+           try {
+    const url = `http://localhost:3000/grupos/actualizar/${this.gruposEditando.IdGrupoArticulo}`;
+    
+    await apiUpdate(url, {      
+      Nombre:this.gruposEditando.Nombre,
+      Descripcion: this.gruposEditando.Descripcion,      
+      IdFamilia: this.gruposEditando.IdFamilia
+    });
+
+    alert('grupo actualizado con éxito');
+    this.dialogGR = false; // cerrar el diálogo
+    this.obtenerGrupos(); // refrescar tabla
+  } catch (err) {
+    alert('Error al actualizar el grupo: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
+    editarFamilia(item)
     {
+      if (!item)
+    {
+      this.editando=false;
+      this.familiaseditando= {
+        Nombre:'',
+        Descripcion:''
+      }
+      this.dialogF =true;
+    }
+    else {
+      this.editando=true;
+      this.familiaseditando={ ...item};
+      this.dialogF=true;  
+    }
+    },
+    async guardarEdicionF()
+    {
+                 try {
+    const url = `http://localhost:3000/familias/actualizar/${this.familiaseditando.IdFamilia}`;
+    
+    await apiUpdate(url, {      
+      Nombre:this.familiaseditando.Nombre,
+      Descripcion: this.familiaseditando.Descripcion,            
+    });
+
+    alert('Familia actualizada con éxito');
+    this.dialogF = false; // cerrar el diálogo
+    this.obtenerFamilias(); // refrescar tabla
+  } catch (err) {
+    alert('Error al actualizar la familia: ' + (err.message || ''));
+    console.error(err);
+  }
+    },
+    //miss
+    async EjecutarA() {
+      if (this.editando)
+        {        
+          this.guardarEdicionA();
+        }
+      else 
+        {    
+          this.crearArticulo();
+        }
+    },
+    async EjecutarG() {
+      if (this.editando)
+        {        
+          this.guardarEdicionG();
+        }
+      else 
+        {    
+          this.crearGrupo();
+        }
+    },
+    async EjecutarF(){
+      if (this.editando)
+        {        
+          this.guardarEdicionF();
+        }
+      else 
+        {    
+          this.crearFamilia();
+        }
+    },
+
+    formatCurrency(value) {
+      // Verificar si el valor es numérico o convertible a número
+      const numberValue = parseFloat(value);  
+      // Si no es un número válido o es NaN, devolver cadena vacía o símbolo de moneda sin valor
+      if (isNaN(numberValue)) {
+        return '$ -'; // O puedes devolver 'N/A' o similar
+      }
+      // Formatear el número válido
+      return '$' + numberValue.toFixed(2);
+    }
+  },  
+  mounted() {
       this.obtenerGrupos();
       this.obtenerFamilias();
       this.obtenerArticulos();
+      apiRequest;
+      apiCreate;      
     },
   watch: {
     tab(newVal) {
@@ -415,86 +551,6 @@ formatCurrency(value) {
       this.obtenerArticulos();
     }
     },
-  }}
+  }
+}
 </script>
-
-<style scoped>
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-.main-container {
-  min-height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 60px;
-}
-
-h1 {
-  text-align: center;
-  font-family: sans-serif;
-  color: black;
-}
-
-.fondo {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.formulario {
-  margin: 1%;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 600px;
-  padding: 25px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #42b983;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.formulario label {
-  color: black;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 20px;
-}
-
-.formulario input,
-.formulario select {
-  background-color: #2c3e50;
-  padding: 20px;
-  border-radius: 4px;
-  border: none;
-  width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 15px;
-  color: white;
-}
-
-button {
-  padding: 10px;
-  background-color: #2c3e50;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 40%;
-  align-self: center;
-}
-
-.error {
-  background-color: #42b983;
-}
-
-.error-mensaje {
-  text-align: center;
-  color: #2c3e50;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 20px;
-}
-
-</style>

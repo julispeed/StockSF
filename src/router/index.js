@@ -7,6 +7,7 @@ import Familia from '@/views/viewArticulos/Familia.vue'
 import CreateDeposito from '@/views/viewDepositos/Depositos.vue'
 import CreateProveedor from '@/views/viewProveedores/Proveedor.vue'
 import MantenimientoArticulos from '@/views/viewArticulos/MantenimientoArticulos.vue'
+import Inicio from '@/views/Inicio.vue' 
 
 
 const routes = [
