@@ -25,6 +25,9 @@
         <v-list-item link :to="{ path: '/Proveedor' }">
           <v-list-item-title>Proveedores</v-list-item-title>
         </v-list-item>
+        <v-list-item link :to="{ path: '/Listados' }">
+          <v-list-item-title>Listados</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
