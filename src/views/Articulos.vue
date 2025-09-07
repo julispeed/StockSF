@@ -307,7 +307,7 @@ export default {
     console.error(err);
   }  
     },
-    //get
+    //getCannot GET /familia
 
     async obtenerArticulos() { 
       this.articulos = await apiRequest('http://localhost:3000/articulos/listar') //('http://localhost:3000/articulos/listar');
@@ -317,7 +317,7 @@ export default {
       this.grupos = await apiRequest('http://localhost:3000/grupos');
     },
     async obtenerFamilias() {
-     this.familias = await apiRequest('http://localhost:3000/familias');
+     this.familias = await apiRequest('https://stocksfback-production.up.railway.app/familias');//http://localhost:3000/familia
     },   
     //delete
     async eliminarArticulo(item) {  
