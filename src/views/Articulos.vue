@@ -282,7 +282,7 @@ export default {
     },
     async crearGrupo() {      
           try {
-    await apiCreate('http://localhost:3000/grupos/crear', this.gruposEditando);
+    await apiCreate('https://stocksfback-production.up.railway.app/grupos/crear', this.gruposEditando);
         
     alert('grupo creado con éxito');
 
@@ -296,7 +296,7 @@ export default {
     async crearFamilia()
     {
            try {
-            await apiCreate('http://localhost:3000/familias/crear', this.familiaseditando);
+            await apiCreate('https://stocksfback-production.up.railway.app/familias/crear', this.familiaseditando);
         
     alert('Familia creada con éxito');
 
@@ -314,7 +314,7 @@ export default {
     },
 
     async obtenerGrupos() { 
-      this.grupos = await apiRequest('http://localhost:3000/grupos');
+      this.grupos = await apiRequest('https://stocksfback-production.up.railway.app/grupos');
     },
     async obtenerFamilias() {
      this.familias = await apiRequest('https://stocksfback-production.up.railway.app/familias');//http://localhost:3000/familia
@@ -338,7 +338,7 @@ export default {
     {
         if (!confirm('¿Seguro que quieres eliminar este grupo?')) return;
   try {
-    const url = `http://localhost:3000/grupos/eliminar/${item.IdGrupoArticulo}`;
+    const url = `https://stocksfback-production.up.railway.app/grupos/eliminar/${item.IdGrupoArticulo}`;
     await apiDelete(url);
 
     alert('Grupo eliminado con éxito');
@@ -369,7 +369,7 @@ export default {
     {
        if (!confirm('¿Seguro que quieres eliminar esta familia?')) return;
   try {
-    const url = `http://localhost:3000/familias/eliminar/${item.IdFamilia}`;
+    const url = `https://stocksfback-production.up.railway.app/familias/eliminar/${item.IdFamilia}`;
     await apiDelete(url);
 
     alert('Familia eliminado con éxito');
@@ -444,7 +444,7 @@ export default {
     },
     async guardarEdicionG() {
            try {
-    const url = `http://localhost:3000/grupos/actualizar/${this.gruposEditando.IdGrupoArticulo}`;
+    const url = `https://stocksfback-production.up.railway.app/grupos/${this.gruposEditando.IdGrupoArticulo}`;
     
     await apiUpdate(url, {      
       Nombre:this.gruposEditando.Nombre,
@@ -480,7 +480,7 @@ export default {
     async guardarEdicionF()
     {
                  try {
-    const url = `http://localhost:3000/familias/actualizar/${this.familiaseditando.IdFamilia}`;
+    const url = `https://stocksfback-production.up.railway.app/familias/actualizar/${this.familiaseditando.IdFamilia}`;
     
     await apiUpdate(url, {      
       Nombre:this.familiaseditando.Nombre,
