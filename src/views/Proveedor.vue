@@ -114,7 +114,7 @@ export default {
     // Crear
     async crearProveedor() {
       try {
-        await apiCreate("http://localhost:3000/proveedores/crear", this.proveedorEditando);
+        await apiCreate("https://stocksfback-production.up.railway.app/proveedores/crear", this.proveedorEditando);
         alert("Proveedor creado con éxito");
         this.dialogP = false;
         this.obtenerProveedores();
@@ -126,14 +126,14 @@ export default {
 
     // Listar
     async obtenerProveedores() {
-      this.proveedores = await apiRequest("http://localhost:3000/proveedores");
+      this.proveedores = await apiRequest("https://stocksfback-production.up.railway.app/proveedores");
     },
 
     // Eliminar
     async eliminarProveedor(item) {
       if (!confirm("¿Seguro que quieres eliminar este proveedor?")) return;
       try {
-        const url = `http://localhost:3000/proveedores/eliminar/${item.IdProveedor}`;
+        const url = `https://stocksfback-production.up.railway.app/proveedores/eliminar/${item.IdProveedor}`;
         await apiDelete(url);
         alert("Proveedor eliminado con éxito");
         this.obtenerProveedores();
@@ -166,7 +166,7 @@ export default {
     // Actualizar
     async guardarEdicionP() {
       try {
-        const url = `http://localhost:3000/proveedores/actualizar/${this.proveedorEditando.IdProveedor}`;
+        const url = `https://stocksfback-production.up.railway.app/Proveedores/actualizar/${this.proveedorEditando.IdProveedor}`;
         await apiUpdate(url, {
           RazonSocial: this.proveedorEditando.RazonSocial,
           Codigo: this.proveedorEditando.Codigo,
