@@ -100,7 +100,7 @@ export default {
   methods: {
     async crearDeposito() {
       try {
-        await apiCreate("http://localhost:3000/depositos/crear", this.depositoEditando);
+        await apiCreate("https://stocksfback-production.up.railway.app/depositos/crear", this.depositoEditando);
         alert("Depósito creado con éxito");
         this.dialogD = false;
         this.obtenerDepositos();
@@ -111,14 +111,14 @@ export default {
     },
 
     async obtenerDepositos() {
-      this.depositos = await apiRequest("http://localhost:3000/depositos");
+      this.depositos = await apiRequest("https://stocksfback-production.up.railway.app/depositos");
     },
     
     async eliminarDeposito(item) {
       if (!confirm("¿Seguro que quieres eliminar este depósito?")) return;
       try {
         
-        const url = `http://localhost:3000/depositos/eliminar/${item.IdDeposito}`;
+        const url = `https://stocksfback-production.up.railway.app/depositos/eliminar/${item.IdDeposito}`;
         await apiDelete(url);
         alert("Depósito eliminado con éxito");
         this.obtenerDepositos();
@@ -142,7 +142,7 @@ export default {
 
     async guardarEdicionD() {
       try {
-        const url = `http://localhost:3000/depositos/actualizar/${this.depositoEditando.IdDeposito}`;
+        const url = `https://stocksfback-production.up.railway.app/depositos/actualizar/${this.depositoEditando.IdDeposito}`;
         await apiUpdate(url, {
           Nombre: this.depositoEditando.Nombre,
           Descripcion: this.depositoEditando.Descripcion,
