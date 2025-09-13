@@ -207,7 +207,7 @@ export default {
     },
     async obtenerDepositos() {
       try {
-        const res = await fetch('http://localhost:3000/depositos');
+        const res = await fetch('https://stocksfback-production.up.railway.app/depositos');
         this.depositos = await res.json();
       } catch (err) {
         console.error('Error al obtener depósitos:', err);
@@ -219,7 +219,7 @@ export default {
       const termino = this.busqueda.trim();
       if (!termino) return;
       try {
-        const data =await apiRequest(`http://localhost:3000/articulos/buscar?termino=${encodeURIComponent(termino)}`) 
+        const data =await apiRequest(`https://stocksfback-production.up.railway.app/articulos/buscar?termino=${encodeURIComponent(termino)}`) 
         if (data.length === 1) {
           this.seleccionarArticulo(data[0]);
         } else {
@@ -301,7 +301,7 @@ export default {
           IdDeposito:this.IddepositosSeleccionado,
           Articulos: this.articulos.map(a => ({ IdArticulo: a.IdArticulo, Cantidad: a.cantidad })),
         }
-        await apiCreate('http://localhost:3000/movimientos',Movimiento);        
+        await apiCreate('https://stocksfback-production.up.railway.app/movimientos',Movimiento);        
         alert(`Movimiento guardado`);
         this.articulos = [];
       } catch (err) {
@@ -311,7 +311,7 @@ export default {
     },
     async obtenerProximo() {
       try {
-        const res = await fetch(`http://localhost:3000/movimientos/proximo-numero?TipoMovimiento=${this.TipoMovimiento}&Prefijo=1`);
+        const res = await fetch(`https://stocksfback-production.up.railway.app/movimientos/proximo-numero?TipoMovimiento=${this.TipoMovimiento}&Prefijo=1`);
         const data = await res.json();
         this.ProximoNumero = data.proximoNumero;
       } catch (err) {

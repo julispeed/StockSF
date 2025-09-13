@@ -146,14 +146,14 @@ headersArticulos: [
   methods: {    
     //get
     async obtenerArticulosStock() { 
-      this.articulos = await apiRequest('http://localhost:3000/stocks/stockArticulos') 
+      this.articulos = await apiRequest('https://stocksfback-production.up.railway.app/stocks/stockArticulos') 
     },    
 
     async obtenerGrupos() { 
-      this.grupos = await apiRequest('http://localhost:3000/grupos');
+      this.grupos = await apiRequest('https://stocksfback-production.up.railway.app/grupos');
     },
     async obtenerFamilias() {
-     this.familias = await apiRequest('http://localhost:3000/familias');
+     this.familias = await apiRequest('https://stocksfback-production.up.railway.app/familias');
     },   
     formatCurrency(value) {
       // Verificar si el valor es numérico o convertible a número
