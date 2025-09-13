@@ -268,7 +268,7 @@ export default {
     async crearArticulo()
     {      
      try {
-    await apiCreate('http://localhost:3000/articulos/crear', this.articuloEditando);
+    await apiCreate('https://stocksfback-production.up.railway.app/articulos/crear', this.articuloEditando);
         
     alert('Artículo creado con éxito');
 
@@ -310,7 +310,7 @@ export default {
     //getCannot GET /familia
 
     async obtenerArticulos() { 
-      this.articulos = await apiRequest('http://localhost:3000/articulos/listar') //('http://localhost:3000/articulos/listar');
+      this.articulos = await apiRequest('https://stocksfback-production.up.railway.app/articulos/listar') //('http://localhost:3000/articulos/listar');
     },
 
     async obtenerGrupos() { 
@@ -324,7 +324,7 @@ export default {
       if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
 
   try {
-    const url = `http://localhost:3000/articulos/eliminar/${item.IdArticulo}`;
+    const url = `https://stocksfback-production.up.railway.app/articulos/eliminar/${item.IdArticulo}`;
     await apiDelete(url);
 
     alert('Artículo eliminado con éxito');
@@ -403,7 +403,7 @@ export default {
     },
     async guardarEdicionA() {
      try {
-    const url = `http://localhost:3000/articulos/actualizar/${this.articuloEditando.IdArticulo}`;
+    const url = `https://stocksfback-production.up.railway.app/articulos/actualizar/${this.articuloEditando.IdArticulo}`;
     
     await apiUpdate(url, {
       Descripcion: this.articuloEditando.Descripcion,
