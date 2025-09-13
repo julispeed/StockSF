@@ -444,7 +444,7 @@ export default {
     },
     async guardarEdicionG() {
            try {
-    const url = `https://stocksfback-production.up.railway.app/grupos/${this.gruposEditando.IdGrupoArticulo}`;
+    const url = `https://stocksfback-production.up.railway.app/grupos/actualizar/${this.gruposEditando.IdGrupoArticulo}`;
     
     await apiUpdate(url, {      
       Nombre:this.gruposEditando.Nombre,
