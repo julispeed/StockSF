@@ -348,23 +348,7 @@ export default {
     console.error(err);
   }
     },
-        async eliminarArticulo(item) {  
-      if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
-      try {
-        const res = await fetch(`http://localhost:3000/articulos/eliminar/${item.IdArticulo}`, {
-        method: 'DELETE',
-        });
 
-        if (!res.ok) throw new Error('Error al eliminar el artículo');
-
-        const data = await res.json();
-        alert(data.message || "Artículo eliminado");
-        this.obtenerArticulos();
-      } catch (err) {
-          console.error(err);
-          alert('No se pudo eliminar el artículo');
-      }
-    },
     async eliminarFamilia(item)
     {
        if (!confirm('¿Seguro que quieres eliminar esta familia?')) return;
