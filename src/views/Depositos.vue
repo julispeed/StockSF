@@ -28,6 +28,8 @@
               :items="depositos"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >
               <template v-slot:item.acciones="{ item }">
                 <v-btn icon small color="blue" @click="editarDeposito(item)">
@@ -83,9 +85,9 @@ export default {
     editando: false,
 
     headersDepositos: [
-      { text: "Nombre", value: "Nombre", width: "150px" },
-      { text: "Descripción", value: "Descripcion", width: "250px" },
-      { text: "Acciones", value: "acciones", width: "150px", sortable: false },
+      { title: "Nombre", value: "Nombre", width: "150px" },
+      { title: "Descripción", value: "Descripcion", width: "250px" },
+      { title: "Acciones", value: "acciones", width: "150px", sortable: false },
     ],
 
     depositos: [],
@@ -100,7 +102,7 @@ export default {
   methods: {
     async crearDeposito() {
       try {
-        await apiCreate("https://stocksfback-production.up.railway.app/depositos/crear", this.depositoEditando);
+        await apiCreate("http://localhost:3000/depositos/crear", this.depositoEditando);
         alert("Depósito creado con éxito");
         this.dialogD = false;
         this.obtenerDepositos();
@@ -111,14 +113,14 @@ export default {
     },
 
     async obtenerDepositos() {
-      this.depositos = await apiRequest("https://stocksfback-production.up.railway.app/depositos");
+      this.depositos = await apiRequest("http://localhost:3000/depositos");
     },
     
     async eliminarDeposito(item) {
       if (!confirm("¿Seguro que quieres eliminar este depósito?")) return;
       try {
         
-        const url = `https://stocksfback-production.up.railway.app/depositos/eliminar/${item.IdDeposito}`;
+        const url = `http://localhost:3000/depositos/eliminar/${item.IdDeposito}`;
         await apiDelete(url);
         alert("Depósito eliminado con éxito");
         this.obtenerDepositos();
@@ -142,7 +144,7 @@ export default {
 
     async guardarEdicionD() {
       try {
-        const url = `https://stocksfback-production.up.railway.app/depositos/actualizar/${this.depositoEditando.IdDeposito}`;
+        const url = `http://localhost:3000/depositos/actualizar/${this.depositoEditando.IdDeposito}`;
         await apiUpdate(url, {
           Nombre: this.depositoEditando.Nombre,
           Descripcion: this.depositoEditando.Descripcion,

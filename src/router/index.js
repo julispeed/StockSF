@@ -8,6 +8,7 @@ import Inicio from '@/views/Inicio.vue'
 
 
 const routes = [
+  { path: '/', name: 'Inicio', component: Inicio },
   { path: '/articulos', name: 'Articulos', component: Articulos },
   { path: '/movimientos', name: 'Movimientos', component: Movimientos },
   { path: '/Depositos', name: 'Depositos', component: Deposito },

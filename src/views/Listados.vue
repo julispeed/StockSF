@@ -29,6 +29,8 @@
               :items="articulos"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >
               <template v-slot:item.precio="{ item }">
                 {{ formatCurrency(item.Precio) }}
@@ -59,6 +61,8 @@
               :items="grupos"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >                                        
             </v-data-table>            
           
@@ -84,7 +88,9 @@
               :items="familias"
               :search="search"
               class="elevation-1"
-            >                          
+              :pagination="false"
+              hide-default-footer
+            >                                        
             </v-data-table>          
         </v-tabs-window-item>
       </v-tabs-window>
@@ -102,21 +108,22 @@ export default {
   
   
 headersArticulos: [
-  { text: 'Código', value: 'Codigo', width: '120px' },
-  { text: 'Descripción', value: 'Descripcion', width: '120px' },
-  { text: 'Unidad de medida', value: 'Unidad_medida', width: '100px' },  
-  { text: 'Precio', value: 'Precio', width: '120px', align: 'right' },
-  { text: 'Costo', value: 'Costo', width: '120px', align: 'right' },
-  { text: 'Grupo de Articulos', value: 'IdGrupoArticulo', width: '120px', align: 'right' },
-  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false },
-  { text: 'Stock', value: 'StockActual', width: '100px', align: 'right' }, 
+      { title: 'Código', key: 'Codigo', width: '120px' , class: 'header-text' },
+      { title: 'Descripción', key: 'Descripcion',width: '120px' },
+      { title: 'Unidad de medida', key: 'Unidad_medida', width: '100px' },
+      { title: 'Codigo de Barra', key: 'Codigo_barra', width: '100px' },
+      { title: 'Precio', key: 'Precio', width: '120px', align: 'right' },
+      { title: 'Costo', key: 'Costo', width: '120px', align: 'right' },
+      { title: 'Grupo', key: 'GrupoNombre', width: '150px', align: 'right' },
+      { title: 'Stock', key: 'StockActual', width: '100px', align: 'right' }
 ],
   articulos: [],
 
   headersGrupos: [
-  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
-  { text: 'Descripcion', value: 'Descripcion',width: '120px' },
-  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  { title: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { title: 'Descripcion', value: 'Descripcion',width: '120px' },
+  { title: 'Familia', value: 'FamiliaNombre',width: '120px' },
+
   ], 
   grupos:[],
   gruposEditando : 
@@ -129,9 +136,8 @@ headersArticulos: [
   dialogGR: false,            
 
    headersFamilia: [
-  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
-  { text: 'Descripcion', value: 'Descripcion',width: '120px' } ,
-  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  { title: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { title: 'Descripcion', value: 'Descripcion',width: '120px' } 
   ],
   familias:[],
   familiaseditando :
@@ -144,38 +150,48 @@ headersArticulos: [
   }),
 
   methods: {    
-    //get
-    async obtenerArticulosStock() { 
-      this.articulos = await apiRequest('https://stocksfback-production.up.railway.app/stocks/stockArticulos') 
-    },    
 
+ async obtenerArticulos() { 
+  const articulosAPI = await apiRequest('http://localhost:3000/stocks/stockArticulos');
+  this.articulos = articulosAPI.map(a => {
+    const grupo = this.grupos.find(g => g.IdGrupoArticulo === a.IdGrupoArticulos);
+    return {
+      ...a,
+      GrupoNombre: grupo ? grupo.Nombre : "Sin grupo"
+    };
+  });
+},
     async obtenerGrupos() { 
-      this.grupos = await apiRequest('https://stocksfback-production.up.railway.app/grupos');
+      const gruposAPI = await apiRequest('http://localhost:3000/grupos');
+      this.grupos= gruposAPI.map(g => {
+        const  familia = this.familias.find( f =>f.IdFamilia === g.IdFamilia);
+        return {
+          ... g,
+          FamiliaNombre: familia ? familia.Nombre : "Sin Familia"
+        }
+      });
     },
     async obtenerFamilias() {
-     this.familias = await apiRequest('https://stocksfback-production.up.railway.app/familias');
+     this.familias = await apiRequest('http://localhost:3000/familias');
     },   
-    formatCurrency(value) {
-      // Verificar si el valor es numérico o convertible a número
-      const numberValue = parseFloat(value);  
-      // Si no es un número válido o es NaN, devolver cadena vacía o símbolo de moneda sin valor
+    formatCurrency(value) {      
+      const numberValue = parseFloat(value);        
       if (isNaN(numberValue)) {
-        return '$ -'; // O puedes devolver 'N/A' o similar
+        return '$ -'; 
       }
-      // Formatear el número válido
       return '$' + numberValue.toFixed(2);
     }
   },  
-  mounted() {
-      this.obtenerGrupos();
-      this.obtenerFamilias();
-      this.obtenerArticulosStock();
-      apiRequest;      
+  async mounted() {
+    await this.obtenerFamilias();
+    await this.obtenerGrupos();
+    await this.obtenerArticulos();
+    await apiRequest;      
     },
   watch: {
     tab(newVal) {
     if (newVal === 'four') { 
-      this.obtenerArticulosStock();
+      this.obtenerArticulos();
     }
     },
   }

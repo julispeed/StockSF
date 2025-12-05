@@ -6,7 +6,7 @@
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" app temporary>      
       <v-list dense>
-        <v-list-item link :to="{ path: '/inicio' }">
+        <v-list-item link to="/">
           <v-list-item-title>Inicio</v-list-item-title>
         </v-list-item>
 

@@ -30,6 +30,8 @@
               :items="proveedores"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >
               <template v-slot:item.acciones="{ item }">
                 <v-btn icon small color="blue" @click="editarProveedor(item)">
@@ -87,13 +89,12 @@ export default {
     editando: false,
 
     headersProveedores: [
-      { text: "Razón Social", value: "RazonSocial" },
-      { text: "Código", value: "Codigo" },
-      { text: "Dirección", value: "Direccion" },
-      { text: "Condición IVA", value: "CondicionIVA" },
-      { text: "Teléfono", value: "Telefono" },
-      { text: "Correo", value: "Correo" },
-      { text: "Acciones", value: "acciones", sortable: false },
+      { title: "Razón Social", value: "RazonSocial" },
+      { title: "Razón Social", value: "RazonSocial" },
+      { title: "Condición IVA", value: "CondicionIVA" },
+      { title: "Teléfono", value: "Telefono" },
+      { title: "Correo", value: "Correo" },
+      { title: "Acciones", value: "acciones", sortable: false },
     ],
 
     proveedores: [],
@@ -114,7 +115,7 @@ export default {
     // Crear
     async crearProveedor() {
       try {
-        await apiCreate("https://stocksfback-production.up.railway.app/proveedores/crear", this.proveedorEditando);
+        await apiCreate("http://localhost:3000/proveedores/crear", this.proveedorEditando);
         alert("Proveedor creado con éxito");
         this.dialogP = false;
         this.obtenerProveedores();
@@ -126,14 +127,14 @@ export default {
 
     // Listar
     async obtenerProveedores() {
-      this.proveedores = await apiRequest("https://stocksfback-production.up.railway.app/proveedores");
+      this.proveedores = await apiRequest("http://localhost:3000/proveedores");
     },
 
     // Eliminar
     async eliminarProveedor(item) {
       if (!confirm("¿Seguro que quieres eliminar este proveedor?")) return;
       try {
-        const url = `https://stocksfback-production.up.railway.app/proveedores/eliminar/${item.IdProveedor}`;
+        const url = `http://localhost:3000/proveedores/eliminar/${item.IdProveedor}`;
         await apiDelete(url);
         alert("Proveedor eliminado con éxito");
         this.obtenerProveedores();
@@ -166,7 +167,7 @@ export default {
     // Actualizar
     async guardarEdicionP() {
       try {
-        const url = `https://stocksfback-production.up.railway.app/Proveedores/actualizar/${this.proveedorEditando.IdProveedor}`;
+        const url = `http://localhost:3000/Proveedores/actualizar/${this.proveedorEditando.IdProveedor}`;
         await apiUpdate(url, {
           RazonSocial: this.proveedorEditando.RazonSocial,
           Codigo: this.proveedorEditando.Codigo,

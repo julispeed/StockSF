@@ -30,6 +30,8 @@
               :items="articulos"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >
               <template v-slot:item.precio="{ item }">
                 {{ formatCurrency(item.Precio) }}
@@ -106,6 +108,8 @@
               :items="grupos"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >                          
               <template v-slot:item.acciones="{ item }">
                 <v-btn icon small color="blue" @click="editarGrupo(item)">
@@ -166,6 +170,8 @@
               :items="familias"
               :search="search"
               class="elevation-1"
+              :pagination="false"
+              hide-default-footer
             >                          
               <template v-slot:item.acciones="{ item }">
                 <v-btn icon small color="blue" @click="editarFamilia(item)">
@@ -209,16 +215,15 @@ export default {
     editando:true,
     search: '',
   
-  
     headersArticulos: [
-      { text: 'Código', value: 'Codigo', width: '120px' , class: 'header-text' },
-      { text: 'Descripción', value: 'Descripcion',width: '120px' },
-      { text: 'Unidad de medida', value: 'Unidad_medida', width: '100px' },
-      { text: 'Codigo de Barra', value: 'Codigo_barra', width: '100px' },
-      { text: 'Precio', value: 'Precio', width: '120px', align: 'right' },
-      { text: 'Costo', value: 'Costo', width: '120px', align: 'right' },
-      { text: 'Grupo de Articulos', value: 'IdGrupoArticulo', width: '120px', align: 'right' },
-      { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+      { title: 'Código', key: 'Codigo', width: '120px' , class: 'header-text' },
+      { title: 'Descripción', key: 'Descripcion',width: '120px' },
+      { title: 'Unidad de medida', key: 'Unidad_medida', width: '100px' },
+      { title: 'Codigo de Barra', key: 'Codigo_barra', width: '100px' },
+      { title: 'Precio', key: 'Precio', width: '120px', align: 'right' },
+      { title: 'Costo', key: 'Costo', width: '120px', align: 'right' },
+      { title: 'Grupo', key: 'GrupoNombre', width: '150px', align: 'right' },
+      { title: 'Acciones', key: 'acciones', width: '150px', sortable: false }
     ],
   articulos: [],
   articuloEditando: {
@@ -235,9 +240,10 @@ export default {
 
 
   headersGrupos: [
-  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
-  { text: 'Descripcion', value: 'Descripcion',width: '120px' },
-  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  { title: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { title: 'Descripcion', value: 'Descripcion',width: '120px' },
+  { title: 'Familia', value: 'FamiliaNombre',width: '120px' },
+  { title: 'Acciones', value: 'acciones', width: '150px', sortable: false }
   ], 
   grupos:[],
   gruposEditando : 
@@ -250,9 +256,9 @@ export default {
   dialogGR: false,            
 
    headersFamilia: [
-  { text: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
-  { text: 'Descripcion', value: 'Descripcion',width: '120px' } ,
-  { text: 'Acciones', value: 'acciones', width: '150px', sortable: false }
+  { title: 'Nombre', value: 'Nombre', width: '120px' , class: 'header-text'  },
+  { title: 'Descripcion', value: 'Descripcion',width: '120px' } ,
+  { title: 'Acciones', value: 'acciones', width: '150px', sortable: false }
   ],
   familias:[],
   familiaseditando :
@@ -268,7 +274,7 @@ export default {
     async crearArticulo()
     {      
      try {
-    await apiCreate('https://stocksfback-production.up.railway.app/articulos/crear', this.articuloEditando);
+    await apiCreate('http://localhost:3000/articulos/crear', this.articuloEditando);
         
     alert('Artículo creado con éxito');
 
@@ -282,7 +288,7 @@ export default {
     },
     async crearGrupo() {      
           try {
-    await apiCreate('https://stocksfback-production.up.railway.app/grupos/crear', this.gruposEditando);
+    await apiCreate('http://localhost:3000/grupos/crear', this.gruposEditando);
         
     alert('grupo creado con éxito');
 
@@ -296,7 +302,7 @@ export default {
     async crearFamilia()
     {
            try {
-            await apiCreate('https://stocksfback-production.up.railway.app/familias/crear', this.familiaseditando);
+            await apiCreate('http://localhost:3000/familias/crear', this.familiaseditando);
         
     alert('Familia creada con éxito');
 
@@ -309,22 +315,36 @@ export default {
     },
     //getCannot GET /familia
 
-    async obtenerArticulos() { 
-      this.articulos = await apiRequest('https://stocksfback-production.up.railway.app/articulos/listar') //('http://localhost:3000/articulos/listar');
-    },
+async obtenerArticulos() { 
+  const articulosAPI = await apiRequest('http://localhost:3000/articulos/listar');
+  this.articulos = articulosAPI.map(a => {
+    const grupo = this.grupos.find(g => g.IdGrupoArticulo === a.IdGrupoArticulos);
+    return {
+      ...a,
+      GrupoNombre: grupo ? grupo.Nombre : "Sin grupo"
+    };
+  });
+},
 
     async obtenerGrupos() { 
-      this.grupos = await apiRequest('https://stocksfback-production.up.railway.app/grupos');
+      const gruposAPI = await apiRequest('http://localhost:3000/grupos');
+      this.grupos= gruposAPI.map(g => {
+        const  familia = this.familias.find( f =>f.IdFamilia === g.IdFamilia);
+        return {
+          ... g,
+          FamiliaNombre: familia ? familia.Nombre : "Sin Familia"
+        }
+      });
     },
     async obtenerFamilias() {
-     this.familias = await apiRequest('https://stocksfback-production.up.railway.app/familias');//http://localhost:3000/familia
+     this.familias = await apiRequest('http://localhost:3000/familias');//http://localhost:3000/familia
     },   
     //delete
     async eliminarArticulo(item) {  
       if (!confirm('¿Seguro que quieres eliminar este artículo?')) return;
 
   try {
-    const url = `https://stocksfback-production.up.railway.app/articulos/eliminar/${item.IdArticulo}`;
+    const url = `http://localhost:3000/articulos/eliminar/${item.IdArticulo}`;
     await apiDelete(url);
 
     alert('Artículo eliminado con éxito');
@@ -338,7 +358,7 @@ export default {
     {
         if (!confirm('¿Seguro que quieres eliminar este grupo?')) return;
   try {
-    const url = `https://stocksfback-production.up.railway.app/grupos/eliminar/${item.IdGrupoArticulo}`;
+    const url = `http://localhost:3000/grupos/eliminar/${item.IdGrupoArticulo}`;
     await apiDelete(url);
 
     alert('Grupo eliminado con éxito');
@@ -353,7 +373,7 @@ export default {
     {
        if (!confirm('¿Seguro que quieres eliminar esta familia?')) return;
   try {
-    const url = `https://stocksfback-production.up.railway.app/familias/eliminar/${item.IdFamilia}`;
+    const url = `http://localhost:3000/familias/eliminar/${item.IdFamilia}`;
     await apiDelete(url);
 
     alert('Familia eliminado con éxito');
@@ -428,7 +448,7 @@ export default {
     },
     async guardarEdicionG() {
            try {
-    const url = `https://stocksfback-production.up.railway.app/grupos/actualizar/${this.gruposEditando.IdGrupoArticulo}`;
+    const url = `http://localhost:3000/grupos/actualizar/${this.gruposEditando.IdGrupoArticulo}`;
     
     await apiUpdate(url, {      
       Nombre:this.gruposEditando.Nombre,
@@ -464,7 +484,7 @@ export default {
     async guardarEdicionF()
     {
                  try {
-    const url = `https://stocksfback-production.up.railway.app/familias/actualizar/${this.familiaseditando.IdFamilia}`;
+    const url = `http://localhost:3000/familias/actualizar/${this.familiaseditando.IdFamilia}`;
     
     await apiUpdate(url, {      
       Nombre:this.familiaseditando.Nombre,
@@ -522,10 +542,11 @@ export default {
       return '$' + numberValue.toFixed(2);
     }
   },  
-  mounted() {
-      this.obtenerGrupos();
-      this.obtenerFamilias();
-      this.obtenerArticulos();
+  async mounted() {
+    await this.obtenerFamilias(); 
+       await this.obtenerGrupos();   
+        await this.obtenerArticulos(); 
+        
       apiRequest;
       apiCreate;      
     },

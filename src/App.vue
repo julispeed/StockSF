@@ -1,8 +1,9 @@
-
-
 <template>
   <div id="app">    
-    <Navbar />    
+    <Navbar />
+
+    <router-view />   
+
     <Footer />
   </div>
 </template>
@@ -11,7 +12,3 @@
 import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
 </script>
-
-<style>
-
-</style>

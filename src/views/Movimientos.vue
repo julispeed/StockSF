@@ -4,76 +4,68 @@
     <v-form >
       <v-row class="mb-4" >
         <v-col cols="12" md="4" >
-          <v-select          
-          bg-color="light-blue-darken-4"
-            v-model="TipoMovimiento"
-            :items="tiposMovimiento"
-            item-text="s"
-            label="Tipo de Movimiento"
-            outlined
-            dense
-            required
-          ></v-select>
+          <!-- Tipomovimiento guarda el valor elegido por el usuario de tiposmovimientos-->
+    <v-select
+      bg-color="light-blue-darken-4"
+      v-model="TipoMovimiento" 
+      :items="tiposMovimiento"
+      item-title="text"
+      item-value="value"
+      label="Tipo de Movimiento"
+      outlined
+      density="compact"
+      required
+    ></v-select>
         </v-col>
-
         <v-col cols="12" md="4" class="text-center">
           <div>
             <strong>Comprobante:</strong> 1-{{ ProximoNumero }}
           </div>
         </v-col>
-
         <v-col cols="12" md="4">
-          <v-select
-          bg-color="light-blue-darken-4"
-            v-model="IddepositosSeleccionado"
-            :items="depositos"
-            item-text="Nombre"
-            item-value="IdDeposito"
-            label="Depósito Origen"
-            outlined
-            dense
-            required
-          ></v-select>
-        </v-col>
-      </v-row>
+<v-select
+  bg-color="light-blue-darken-4"
+  v-model="IddepositosSeleccionado"
+  :items="depositos"
+  item-title="Nombre"
+  item-value="IdDeposito"
+  label="Depósito Origen"
+  outlined
+  density="compact"
+  required
+></v-select>
+  </v-col>
+    </v-row>
 
-      <v-row class="mb-4" >
-        <v-col cols="12" md="6">
-          <v-text-field
-          bg-color="light-blue-darken-4"
-            v-model="busqueda"
-            label="Buscar Artículo"
-            outlined
-            dense
-            @keyup.enter="buscarArticulo"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-    </v-form>
 
-    <!-- Sugerencias -->
-    <v-dialog v-model="mostrarSugerencias" max-width="500" >
-      <v-card >
-        <v-card-title>Seleccione un Artículo</v-card-title>
-        <v-card-text >
-          <v-list bg-color="light-blue-darken-4">
-            <v-list-item            
-              v-for="item in sugerencias"
-              :key="item.IdArticulo"
-              @click="seleccionarArticulo(item)"
-            >
-              <v-list-item-content>
-                <v-list-item-title >
-                  <strong>{{ item.Codigo }}</strong> - {{ item.Descripcion }} - {{ item.Codigo_barra }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
-    <!-- Ingreso de Cantidad -->
+<v-text-field
+  bg-color="light-blue-darken-4"
+  v-model="busqueda"  
+  label="Buscar Articulo"
+  outlined
+  dense
+  @input="buscarArticulo"
+></v-text-field>
+<div
+  v-if="mostrarSugerencias"
+  class="panel-sugerencias"
+>
+  <v-list>
+    <v-list-item
+      v-for="item in sugerencias"
+      :key="item.IdArticulo"
+      @click="seleccionarArticulo(item)"
+    >
+      <v-list-item-title>
+        <strong>{{ item.Codigo }}</strong> - 
+        {{ item.Descripcion }} - 
+        {{ item.Codigo_barra }}
+      </v-list-item-title>
+    </v-list-item>
+  </v-list>
+</div>
+</v-form>
+    
     <v-dialog v-model="mostrarCantidad" max-width="400">
       <v-card>
         <v-card-title>Ingrese cantidad para: {{ Articulo.descripcion }}</v-card-title>
@@ -95,34 +87,53 @@
       </v-card>
     </v-dialog>
 
-    <!-- Tabla de artículos -->
-    <v-data-table
-    
-      :headers="headers"
-      :items="articulos"
-      item-key="IdArticulo"
-      class="elevation-1"
-    >
-      <template #item.Eliminar="{ item, index }">
-        <v-btn icon  @click="eliminarArticulo(index)">
-          ❌
-        </v-btn>
-      </template>
+<v-data-table
+  :headers="headers"
+  :items="articulos"
+  item-key="IdArticulo"
+  class="elevation-1"
+  :pagination="false"
+  hide-default-footer
+>
 
-      <template #item.Editar="{ item, index }">
-        <v-btn icon color="blue" @click="editarArticulo(index)">
-          ✏️
-        </v-btn>
-      </template>
+  <template #item.Eliminar="{ item, index }">
+    <v-btn icon @click="eliminarArticulo(index)">
+      ❌
+    </v-btn>
+  </template>
 
-      <template #footer.prepend>
-        <tr>
-          <td colspan="7"><strong>Total:</strong></td>
-          <td><strong>{{ totalCosto }}</strong></td>
-          <td><strong>{{ totalPrecio }}</strong></td>
-        </tr>
-      </template>
-    </v-data-table>
+  <template #item.Editar="{ item, index }">
+    <v-btn icon color="blue" @click="editarArticulo(index)">
+      ✏️
+    </v-btn>
+  </template>
+
+  <template #item.totalCosto="{ item }">
+    {{ (item.costo * item.cantidad).toFixed(2) }}
+  </template>
+
+  <template #item.totalPrecio="{ item }">
+    {{ (item.precio * item.cantidad).toFixed(2) }}
+  </template>
+
+<template #body.append>
+  <tr><td colspan="10" style="height: 12px;"></td></tr>
+
+  <tr style="background-color: #0d47a1;">
+    <td colspan="7"></td>
+
+    <td class="text-right"
+        style="font-weight: bold; color: white; padding: 10px; white-space: nowrap;">
+      Costo Total: {{ totalCosto }}
+    </td>
+
+    <td class="text-right"
+        style="font-weight: bold; color: white; padding: 10px; white-space: nowrap;">
+      Precio Total: {{ totalPrecio }}
+    </td>
+  </tr>
+</template>
+</v-data-table>
 
     <v-row justify="end" class="mt-4">
       <v-btn color="success" @click="guardarMovimiento">Guardar Movimiento</v-btn>
@@ -138,6 +149,7 @@ import { apiRequest, apiCreate, apiUpdate, apiDelete } from '@/../utils/api'
 export default {
   data() {
     return {
+
       TipoMovimiento: 'EGR',
       tiposMovimiento: [
         { text: 'Ingreso', value: 'ING' },
@@ -166,20 +178,19 @@ export default {
       cantidadTemporal: 1,
       ProximoNumero: '',
       headers: [
-        { text: 'Eliminar', value: 'Eliminar', align: 'center' },
-        { text: 'Editar', value: 'Editar', align: 'center' },
-        { text: 'Cantidad', value: 'cantidad' },
-        { text: 'Codigo Articulo', value: 'codigo' },
-        { text: 'Descripcion', value: 'descripcion' },
-        { text: 'Codigo Barras', value: 'CodigoBarra' },
-        { text: 'Precio', value: 'precio' },
-        { text: 'Costo', value: 'costo' },
-        { text: 'Total Costo', value: 'totalCosto' },
-        { text: 'Total Precio', value: 'totalPrecio' },
-      ],
+  { title: 'Eliminar', key: 'Eliminar', align: 'center' },
+  { title: 'Editar', key: 'Editar', align: 'center' },
+  { title: 'Cantidad', key: 'cantidad' },
+  { title: 'Código Artículo', key: 'codigo' },
+  { title: 'Descripción', key: 'descripcion' },
+  { title: 'Código Barras', key: 'CodigoBarra' },
+  { title: 'Precio', key: 'precio' },
+  { title: 'Costo', key: 'costo' },
+  { title: 'Total Costo', key: 'totalCosto' },
+  { title: 'Total Precio', key: 'totalPrecio' },
+],
     
     };
-
     
   },
   computed: {
@@ -194,6 +205,7 @@ export default {
     async eliminarArticulo(index) {
       this.articulos.splice(index, 1);
     },
+
     async editarArticulo(index) {
       const articulo = this.articulos[index];
       this.Articulo = { ...articulo };
@@ -205,35 +217,49 @@ export default {
         if (input) input.focus();
       });
     },
+
     async obtenerDepositos() {
       try {
-        const res = await fetch('https://stocksfback-production.up.railway.app/depositos');
-        this.depositos = await res.json();
+        const res = await fetch('http://localhost:3000/depositos');
+        const data = await res.json();
+        this.depositos = data;  
+        if (data.length > 0) {
+          this.IddepositosSeleccionado = data[0].IdDeposito;
+        }
+
       } catch (err) {
         console.error('Error al obtener depósitos:', err);
       }
     },
-
     
     async buscarArticulo() {
-      const termino = this.busqueda.trim();
-      if (!termino) return;
+      const termino = this.busqueda.trim();  
+      if (termino.length === 0) {
+        const data = await apiRequest(`http://localhost:3000/articulos/buscar`);
+        this.sugerencias = data;
+        this.mostrarSugerencias = true;
+        return;
+      }
       try {
-        const data =await apiRequest(`https://stocksfback-production.up.railway.app/articulos/buscar?termino=${encodeURIComponent(termino)}`) 
-        if (data.length === 1) {
-          this.seleccionarArticulo(data[0]);
-        } else {
-          this.sugerencias = data;
-          this.mostrarSugerencias = true;
-        }
+        const data = await apiRequest(
+          `http://localhost:3000/articulos/buscar?termino=${encodeURIComponent(termino)}`
+        );
+
+        this.sugerencias = data;
+        this.mostrarSugerencias = true;
+
       } catch (err) {
-        console.error(err);
+        console.error("Error en búsqueda:", err);
+        this.sugerencias = [];
       }
     },
 
-
-
-
+    handleClickOutside(e) {
+      const panel = this.$el.querySelector(".panel-sugerencias");
+      if (panel && !panel.contains(e.target)) {
+        this.mostrarSugerencias = false;
+      }
+    },
     seleccionarArticulo(articulo) {
       this.Articulo = {
         IdArticulo: articulo.IdArticulo,
@@ -243,14 +269,18 @@ export default {
         precio: articulo.Precio,
         costo: articulo.Costo,
       };
+
       this.mostrarSugerencias = false;
       this.mostrarCantidad = true;
+
       this.cantidadTemporal = 1;
+
       this.$nextTick(() => {
         const input = this.$refs.inputCantidad;
         if (input) input.focus();
       });
     },
+   
     confirmarCantidad() {
       if (!this.cantidadTemporal || this.cantidadTemporal <= 0) {
         alert('Debe ingresar una cantidad válida');
@@ -260,33 +290,8 @@ export default {
       this.Articulo = { IdArticulo: null, codigo: '', descripcion: '', CodigoBarra: '', precio: 0, costo: 0 };
       this.cantidadTemporal = 1;
       this.mostrarCantidad = false;
+      this.busqueda='';
     },
-    /*
-    async guardarMovimiento() {
-      if (!this.TipoMovimiento || !this.IddepositosSeleccionado || this.articulos.length === 0) {
-        alert('Faltan datos para guardar el movimiento');
-        return;
-      }
-      try {
-        const res = await fetch('http://localhost:3000/movimientos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            TipoMovimiento: this.TipoMovimiento,
-            Prefijo: 1,
-            IdDeposito: this.IddepositosSeleccionado,
-            Articulos: this.articulos.map(a => ({ IdArticulo: a.IdArticulo, Cantidad: a.cantidad })),
-          }),
-        });
-        if (!res.ok) throw new Error('Error al guardar movimiento');
-        const data = await res.json();
-        alert(`Movimiento guardado. Comprobante: ${data.Numero}`);
-        this.articulos = [];
-      } catch (err) {
-        console.error(err);
-        alert('Hubo un error al guardar el movimiento');
-      }
-    },*/
 
     async guardarMovimiento() {
       if (!this.TipoMovimiento || !this.IddepositosSeleccionado || this.articulos.length === 0) {
@@ -301,8 +306,9 @@ export default {
           IdDeposito:this.IddepositosSeleccionado,
           Articulos: this.articulos.map(a => ({ IdArticulo: a.IdArticulo, Cantidad: a.cantidad })),
         }
-        await apiCreate('https://stocksfback-production.up.railway.app/movimientos',Movimiento);        
+        await apiCreate('http://localhost:3000/movimientos',Movimiento);        
         alert(`Movimiento guardado`);
+        await this.obtenerProximo();
         this.articulos = [];
       } catch (err) {
         console.error(err);
@@ -311,7 +317,7 @@ export default {
     },
     async obtenerProximo() {
       try {
-        const res = await fetch(`https://stocksfback-production.up.railway.app/movimientos/proximo-numero?TipoMovimiento=${this.TipoMovimiento}&Prefijo=1`);
+        const res = await fetch(`http://localhost:3000/movimientos/proximo-numero?TipoMovimiento=${this.TipoMovimiento}&Prefijo=1`);
         const data = await res.json();
         this.ProximoNumero = data.proximoNumero;
       } catch (err) {
@@ -321,14 +327,24 @@ export default {
 
 
   },
+
   mounted() {
-    this.obtenerDepositos();
-    this.obtenerProximo();
-    apiRequest;
-    apiCreate;  
-  },
+  document.addEventListener("click", this.handleClickOutside);
+  this.obtenerDepositos();
+  this.obtenerProximo();
+}
 };
 </script>
 <style scoped >
-
+.panel-sugerencias {
+  position: absolute;
+  width: 100%;
+  max-height: 280px;
+  overflow-y: auto;
+  background: white;
+  z-index: 999;
+  border: 2px solid #2196f3;
+  border-radius: 6px;
+  margin-top: 4px;
+}
 </style>
