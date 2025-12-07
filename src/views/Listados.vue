@@ -6,6 +6,8 @@
       <v-tab value="three">Stock por Familias</v-tab>      
     </v-tabs>
 
+    <!--ARTICULOS------------------------->    
+
     <v-card-text>
       <v-tabs-window v-model="tab">  
         
@@ -22,6 +24,20 @@
                 hide-details
               ></v-text-field>              
             </v-toolbar>
+
+<v-sheet class="pa-4 mt-4" color="light-blue-darken-3">
+  <v-select
+    bg-color="white"
+    v-model="IddepositosSeleccionado"
+    :items="depositosConTodos"
+    item-title="Nombre"
+    item-value="IdDeposito"
+    label="Depósito"
+    outlined
+    density="comfortable"
+    required
+  ></v-select>
+</v-sheet>
 
     <!-- Tabla de artículos -->
             <v-data-table
@@ -40,6 +56,7 @@
               </template>
             </v-data-table>
     </v-card>
+<!--GRUPOS------------------------->    
         </v-tabs-window-item>
         <v-tabs-window-item value="two">
           <v-card>
@@ -67,7 +84,7 @@
             </v-data-table>            
           
         </v-tabs-window-item>
-        <!-- TAB FAMILIAS -->
+<!--FAMILIASS------------------------->    
         <v-tabs-window-item value="three">
           <v-card>
             <v-toolbar color="light-blue-darken-4" dark flat>
@@ -101,10 +118,12 @@
 <script>
 import { apiRequest, apiCreate, apiUpdate, apiDelete } from '@/../utils/api'
 export default {
-  data: () => ({
-    tab: "one",
-    editando:true,
-    search: '',
+data: () => ({
+  tab: "one",
+  search: '',
+
+  depositos: [],
+  IddepositosSeleccionado: 'TODOS',
   
   
 headersArticulos: [
@@ -125,14 +144,7 @@ headersArticulos: [
   { title: 'Familia', value: 'FamiliaNombre',width: '120px' },
 
   ], 
-  grupos:[],
-  gruposEditando : 
-  {
-    IdGrupoArticulo:null,
-    Nombre:'',
-    Descripcion:'',
-    IdFamilia:''
-  },
+  
   dialogGR: false,            
 
    headersFamilia: [
@@ -151,41 +163,77 @@ headersArticulos: [
 
   methods: {    
 
- async obtenerArticulos() { 
-  const articulosAPI = await apiRequest('http://localhost:3000/stocks/stockArticulos');
-  this.articulos = articulosAPI.map(a => {
-    const grupo = this.grupos.find(g => g.IdGrupoArticulo === a.IdGrupoArticulos);
-    return {
-      ...a,
-      GrupoNombre: grupo ? grupo.Nombre : "Sin grupo"
-    };
-  });
+        async obtenerDepositos() {
+          try {
+            const res = await fetch('http://localhost:3000/depositos');
+            const data = await res.json();
+            this.depositos = data;  
+          } catch (err) {
+            console.error('Error al obtener depósitos:', err);
+          }
+        },
+
+        async obtenerArticulos() { 
+          try {
+            let articulosAPI;
+                if (this.IddepositosSeleccionado=='TODOS')
+                  {
+                    articulosAPI = await apiRequest('http://localhost:3000/stocks/stockArticulos');
+                  }
+                else
+                  {
+                    articulosAPI = await apiRequest(`http://localhost:3000/stocks/stockArticulosPorDepositos?iddeposito=${this.IddepositosSeleccionado}`);
+                  }
+          this.articulos = articulosAPI.map(a => {
+                const grupo = this.grupos.find(g => g.IdGrupoArticulo === a.IdGrupoArticulos);
+                return {
+                  ...a,
+                  GrupoNombre: grupo ? grupo.Nombre : "Sin grupo"
+                };
+                });
+          }
+          catch(err)
+          {
+
+          }
+          
+          
+          },
+          async obtenerGrupos() { 
+            const gruposAPI = await apiRequest('http://localhost:3000/grupos');
+            this.grupos= gruposAPI.map(g => {
+              const  familia = this.familias.find( f =>f.IdFamilia === g.IdFamilia);
+              return {
+                ... g,
+                FamiliaNombre: familia ? familia.Nombre : "Sin Familia"
+              }
+            });
+          },
+          async obtenerFamilias() {
+          this.familias = await apiRequest('http://localhost:3000/familias');
+          },   
+          formatCurrency(value) {      
+            const numberValue = parseFloat(value);        
+            if (isNaN(numberValue)) {
+              return '$ -'; 
+            }
+            return '$' + numberValue.toFixed(2);
+          }
+        },  
+  computed: {
+  depositosConTodos() {
+    return [
+      { Nombre: "TODOS", IdDeposito: "TODOS" },   
+      ...this.depositos                         
+    ];
+  }
 },
-    async obtenerGrupos() { 
-      const gruposAPI = await apiRequest('http://localhost:3000/grupos');
-      this.grupos= gruposAPI.map(g => {
-        const  familia = this.familias.find( f =>f.IdFamilia === g.IdFamilia);
-        return {
-          ... g,
-          FamiliaNombre: familia ? familia.Nombre : "Sin Familia"
-        }
-      });
-    },
-    async obtenerFamilias() {
-     this.familias = await apiRequest('http://localhost:3000/familias');
-    },   
-    formatCurrency(value) {      
-      const numberValue = parseFloat(value);        
-      if (isNaN(numberValue)) {
-        return '$ -'; 
-      }
-      return '$' + numberValue.toFixed(2);
-    }
-  },  
   async mounted() {
+    await this.obtenerDepositos();
     await this.obtenerFamilias();
     await this.obtenerGrupos();
     await this.obtenerArticulos();
+
     await apiRequest;      
     },
   watch: {
@@ -194,6 +242,9 @@ headersArticulos: [
       this.obtenerArticulos();
     }
     },
+    IddepositosSeleccionado() {
+    this.obtenerArticulos();
+  }
   }
 }
 </script>

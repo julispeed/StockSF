@@ -1,209 +1,254 @@
 <template>
-  <v-card >
-    <v-tabs v-model="tab" bg-color="light-blue-darken-4" >
+  <v-card>
+
+    <!-- TABS -->
+    <v-tabs v-model="tab" bg-color="light-blue-darken-4">
       <v-tab value="one">Crear Artículo</v-tab>
       <v-tab value="two">Crear Grupo</v-tab>
-      <v-tab value="three">Crear Familia</v-tab>      
+      <v-tab value="three">Crear Familia</v-tab>
     </v-tabs>
 
     <v-card-text>
-      <v-tabs-window v-model="tab">  
-        
+      <v-tabs-window v-model="tab">
+
+        <!-- ---------- TAB ARTÍCULOS ---------- -->
         <v-tabs-window-item value="one">
-          <v-card>
-            <v-toolbar color="light-blue-darken-4" dark flat>
-              <v-toolbar-title>Gestión de Artículos</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Buscar"
-                single-line
-                hide-details
-              ></v-text-field>
-              <v-btn color="secondary"  @click="editarArticulo(item)">Nuevo Artículo</v-btn>
-            </v-toolbar>
 
-    <!-- Tabla de artículos -->
-            <v-data-table
-              :headers="headersArticulos"
-              :items="articulos"
-              :search="search"
-              class="elevation-1"
-              :pagination="false"
-              hide-default-footer
-            >
-              <template v-slot:item.precio="{ item }">
-                {{ formatCurrency(item.Precio) }}
-              </template>
-              <template v-slot:item.costo="{ item }">
-                {{ formatCurrency(item.Costo) }}
-              </template>
-              <template v-slot:item.acciones="{ item }">
-                <v-btn icon small color="blue" @click="editarArticulo(item)">
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-                <v-btn icon small color="red" @click="eliminarArticulo(item)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </template>
-            </v-data-table>
+          <v-toolbar color="light-blue-darken-4" dark flat>
+            <v-toolbar-title>Gestión de Artículos</v-toolbar-title>
+            <v-spacer></v-spacer>
 
-    <!-- Diálogo de crear/editar -->
-            <v-dialog v-model="dialogAR" max-width="600px">
-              <v-card>
-                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Artículo</v-card-title>
-                <v-card-text>
-                  <v-form>
-                    <v-text-field label="Descripción" v-model="articuloEditando.Descripcion" :rules="[v => !!v || 'La descripcion es obligatorio']" :error-messages="descripcionError" required></v-text-field>
-                    <v-select
-                      label="Unidad de Medida"
-                      :items="['gramos', 'litros', 'unidad']"
-                      v-model="articuloEditando.Unidad_medida"                      
-                      required
-                    ></v-select>
-                    <v-text-field label="Código de Barra" v-model="articuloEditando.Codigo_barra"></v-text-field>
-                    <v-text-field label="Código" v-model="articuloEditando.Codigo" maxlength="5" counter="5" :rules="[v => !!v || 'El código es obligatorio']" :error-messages="codigoError" ></v-text-field>
-                    <v-text-field label="Precio" type="number" v-model="articuloEditando.Precio" min="1" step="0.01" ></v-text-field>
-                    <v-text-field label="Costo" type="number" v-model="articuloEditando.Costo"></v-text-field>
-                    <v-select
-                      v-model="articuloEditando.IdGrupoArticulos"
-                      :items="grupos"
-                      item-text="Nombre"
-                      item-value="IdGrupoArticulo"
-                      label="Grupo"
-                      outlined
-                      dense
-                    />
-                  </v-form>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn text @click="dialogAR = false">Cancelar</v-btn>
-                  <v-btn color="green" text @click="EjecutarA()">
-                    {{ editando ? 'Actualizar' : 'Crear' }}
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-        </v-card>
+            <v-text-field
+              v-model="searchArticulos"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+            ></v-text-field>
+
+            <v-btn color="secondary" @click="editarArticulo()">
+              Nuevo Artículo
+            </v-btn>
+          </v-toolbar>
+
+          <!-- TABLA ARTÍCULOS -->
+          <v-data-table
+            :headers="headersArticulos"
+            :items="articulos"
+            :search="searchArticulos"
+            class="elevation-1"
+            hide-default-footer
+          >
+            <template v-slot:item.precio="{ item }">
+              {{ formatCurrency(item.Precio) }}
+            </template>
+            <template v-slot:item.costo="{ item }">
+              {{ formatCurrency(item.Costo) }}
+            </template>
+
+            <template v-slot:item.acciones="{ item }">
+              <v-btn icon small color="blue" @click="editarArticulo(item)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon small color="red" @click="eliminarArticulo(item)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+
+          <!-- DIALOG ARTÍCULOS -->
+          <v-dialog v-model="dialogAR" max-width="600px">
+            <v-card>
+
+              <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Artículo</v-card-title>
+
+              <v-card-text>
+                <v-form>
+                  <v-text-field
+                    label="Descripción"
+                    v-model="articuloEditando.Descripcion"
+                    :rules="[v => !!v || 'La descripcion es obligatoria']"
+                    :error-messages="descripcionError"
+                    required
+                  ></v-text-field>
+
+                  <v-select
+                    label="Unidad de Medida"
+                    :items="['gramos', 'litros', 'unidad']"
+                    v-model="articuloEditando.Unidad_medida"
+                    required
+                  ></v-select>
+
+                  <v-text-field label="Código de Barra" v-model="articuloEditando.Codigo_barra"></v-text-field>
+
+                  <v-text-field
+                    label="Código"
+                    v-model="articuloEditando.Codigo"
+                    maxlength="5"
+                    counter="5"
+                    :rules="[v => !!v || 'El código es obligatorio']"
+                    :error-messages="codigoError"
+                  ></v-text-field>
+
+                  <v-text-field label="Precio" type="number" v-model="articuloEditando.Precio" step="0.01"></v-text-field>
+
+                  <v-text-field label="Costo" type="number" v-model="articuloEditando.Costo"></v-text-field>
+
+                  <v-select
+                    v-model="articuloEditando.IdGrupoArticulos"
+                    :items="grupos"
+                    item-text="Nombre"
+                    item-value="IdGrupoArticulo"
+                    label="Grupo"
+                  />
+                </v-form>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn text @click="dialogAR = false">Cancelar</v-btn>
+                <v-btn color="green" text @click="EjecutarA()">
+                  {{ editando ? 'Actualizar' : 'Crear' }}
+                </v-btn>
+              </v-card-actions>
+
+            </v-card>
+          </v-dialog>
+
         </v-tabs-window-item>
+
+        <!-- ---------- TAB GRUPOS ---------- -->
         <v-tabs-window-item value="two">
-          <v-card>
-            <v-toolbar color="light-blue-darken-4" dark flat>
-              <v-toolbar-title>Gestión de Grupos</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Buscar"
-                single-line
-                hide-details
-              ></v-text-field>
-              <v-btn color="secondary"  @click="editarGrupo(item)">Nuevo Grupos</v-btn>
-            </v-toolbar>
-          </v-card> 
 
-            <v-data-table
-              :headers="headersGrupos"
-              :items="grupos"
-              :search="search"
-              class="elevation-1"
-              :pagination="false"
-              hide-default-footer
-            >                          
-              <template v-slot:item.acciones="{ item }">
-                <v-btn icon small color="blue" @click="editarGrupo(item)">
-                  <v-icon>mdi-pencil</v-icon>
+          <v-toolbar color="light-blue-darken-4" dark flat>
+            <v-toolbar-title>Gestión de Grupos</v-toolbar-title>
+            <v-spacer></v-spacer>
+
+            <v-text-field
+              v-model="searchGrupos"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+            ></v-text-field>
+
+            <v-btn color="secondary" @click="editarGrupo()">
+              Nuevo Grupo
+            </v-btn>
+          </v-toolbar>
+
+          <v-data-table
+            :headers="headersGrupos"
+            :items="grupos"
+            :search="searchGrupos"
+            class="elevation-1"
+            hide-default-footer
+          >
+            <template v-slot:item.acciones="{ item }">
+              <v-btn icon small color="blue" @click="editarGrupo(item)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon small color="red" @click="eliminarGrupo(item)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+
+          <!-- DIÁLOGO GRUPOS -->
+          <v-dialog v-model="dialogGR" max-width="600px">
+            <v-card>
+              <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Grupo</v-card-title>
+
+              <v-card-text>
+                <v-form>
+                  <v-text-field label="Nombre" v-model="gruposEditando.Nombre" required></v-text-field>
+                  <v-text-field label="Descripción" v-model="gruposEditando.Descripcion" required></v-text-field>
+
+                  <v-select
+                    label="Familia"
+                    :items="familias"
+                    item-text="Nombre"
+                    item-value="IdFamilia"
+                    v-model="gruposEditando.IdFamilia"
+                    required
+                  ></v-select>
+                </v-form>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn text @click="dialogGR = false">Cancelar</v-btn>
+                <v-btn color="green" text @click="EjecutarG()">
+                  {{ editando ? 'Actualizar' : 'Crear' }}
                 </v-btn>
-                <v-btn icon small color="red" @click="eliminarGrupo(item)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </template>
-            </v-data-table>
-            <!--Dialogo grupo-->
-            <v-dialog v-model="dialogGR" max-width="600px">
-              <v-card>
-                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Grupo</v-card-title>
-                <v-card-text>
-                  <v-form>
-                    <v-text-field label="Nombre" v-model="gruposEditando.Nombre" required></v-text-field>                                        
-                    <v-text-field label="Descripción" v-model="gruposEditando.Descripcion" required></v-text-field>                                                            
-                    <v-select
-                      label="Familia"
-                      :items="familias"
-                      item-text="Nombre"
-                      item-value="IdFamilia"
-                      v-model="gruposEditando.IdFamilia"
-                      required
-                    ></v-select>
-                  </v-form>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn text @click="dialogGR = false">Cancelar</v-btn>
-                  <v-btn color="green" text @click="EjecutarG()">
-                    {{ editando ? 'Actualizar' : 'Crear' }}
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          
+              </v-card-actions>
+
+            </v-card>
+          </v-dialog>
+
         </v-tabs-window-item>
-        <!-- TAB FAMILIAS -->
+
+        <!-- ---------- TAB FAMILIAS ---------- -->
         <v-tabs-window-item value="three">
-          <v-card>
-            <v-toolbar color="light-blue-darken-4" dark flat>
-              <v-toolbar-title>Gestión de Familias</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Buscar"
-                single-line
-                hide-details
-              ></v-text-field>
-              <v-btn color="secondary"  @click="editarFamilia(item)">Nueva Familia</v-btn>
-            </v-toolbar>
-          </v-card> 
 
-            <v-data-table
-              :headers="headersFamilia"
-              :items="familias"
-              :search="search"
-              class="elevation-1"
-              :pagination="false"
-              hide-default-footer
-            >                          
-              <template v-slot:item.acciones="{ item }">
-                <v-btn icon small color="blue" @click="editarFamilia(item)">
-                  <v-icon>mdi-pencil</v-icon>
+          <v-toolbar color="light-blue-darken-4" dark flat>
+            <v-toolbar-title>Gestión de Familias</v-toolbar-title>
+            <v-spacer></v-spacer>
+
+            <v-text-field
+              v-model="searchFamilias"
+              append-icon="mdi-magnify"
+              label="Buscar"
+              single-line
+              hide-details
+            ></v-text-field>
+
+            <v-btn color="secondary" @click="editarFamilia()">
+              Nueva Familia
+            </v-btn>
+          </v-toolbar>
+
+          <v-data-table
+            :headers="headersFamilia"
+            :items="familias"
+            :search="searchFamilias"
+            class="elevation-1"
+            hide-default-footer
+          >
+            <template v-slot:item.acciones="{ item }">
+              <v-btn icon small color="blue" @click="editarFamilia(item)">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+              <v-btn icon small color="red" @click="eliminarFamilia(item)">
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+
+          <!-- DIÁLOGO FAMILIAS -->
+          <v-dialog v-model="dialogF" max-width="600px">
+            <v-card>
+              <v-card-title>{{ editando ? 'Editar' : 'Nueva' }} Familia</v-card-title>
+
+              <v-card-text>
+                <v-form>
+                  <v-text-field label="Nombre" v-model="familiaseditando.Nombre" required></v-text-field>
+                  <v-text-field label="Descripción" v-model="familiaseditando.Descripcion" required></v-text-field>
+                </v-form>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn text @click="dialogF = false">Cancelar</v-btn>
+                <v-btn color="green" text @click="EjecutarF()">
+                  {{ editando ? 'Actualizar' : 'Crear' }}
                 </v-btn>
-                <v-btn icon small color="red" @click="eliminarFamilia(item)">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </template>
-            </v-data-table>
-            <!--Dialogo grupo-->
-            <v-dialog v-model="dialogF" max-width="600px">
-              <v-card>
-                <v-card-title>{{ editando ? 'Editar' : 'Nuevo' }} Familia</v-card-title>
-                <v-card-text>
-                  <v-form>
-                    <v-text-field label="Nombre" v-model="familiaseditando.Nombre" required></v-text-field>                                        
-                    <v-text-field label="Descripción" v-model="familiaseditando.Descripcion" required></v-text-field>                                                            
-                  </v-form>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn text @click="dialogF = false">Cancelar</v-btn>
-                  <v-btn color="green" text @click="EjecutarF()">
-                    {{ editando ? 'Actualizar' : 'Crear' }}
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
         </v-tabs-window-item>
+
       </v-tabs-window>
     </v-card-text>
+
   </v-card>
 </template>
 
